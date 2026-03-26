@@ -245,8 +245,8 @@ app.add_middleware(
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 app.mount("/renders", StaticFiles(directory="renders"), name="renders")
 
-# Serve frontend static files
-app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
+# # Serve frontend static files
+# app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
 
 # ═══════════════════════════════════════════════════════════
 # DATABASE
