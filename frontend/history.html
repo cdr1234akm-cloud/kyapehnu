@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kya Pehnu?</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 72'><path d='M32 4 C32 4 32 8 32 9' stroke='%23D4A017' stroke-width='1.5' stroke-linecap='round'/><path d='M26 9 Q32 6 38 9' stroke='%23D4A017' stroke-width='1.5' stroke-linecap='round' fill='none'/><path d='M25 10 C23 12 21 16 20 20 L24 22 L32 20 L40 22 L44 20 C43 16 41 12 39 10 Q35 8 32 9 Q29 8 25 10Z' fill='%23D4A017' opacity='0.9'/><path d='M24 22 C24 24 26 26 28 27 L32 28 L36 27 C38 26 40 24 40 22' fill='%23D4A017' opacity='0.85'/><path d='M28 27 C24 32 14 50 12 66 L52 66 C50 50 40 32 36 27 C36 27 34 28 32 28 C30 28 28 27 28 27Z' fill='%23D4A017' opacity='0.75'/></svg>">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .history-page { padding-top: 80px; min-height: 100vh; }
+
+        /* Tab Bar */
+        .page-tabs {
+            display: flex;
+            gap: 4px;
+            background: var(--bg-input);
+            border-radius: var(--radius-full);
+            padding: 4px;
+            max-width: 400px;
+            margin-bottom: 24px;
+        }
+        .page-tab {
+            flex: 1;
+            padding: 10px 16px;
+            border: none;
+            border-radius: var(--radius-full);
+            background: transparent;
+            color: var(--text-secondary);
+            font-family: var(--font-body);
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .page-tab.active { background: var(--accent-primary); color: white; }
+
+        /* History List */
+        .history-list { display: flex; flex-direction: column; gap: 16px; padding-bottom: 60px; }
+
+        .history-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: 20px;
+            display: flex;
+            gap: 16px;
+            transition: all 0.3s var(--ease-out);
+            animation: fadeUp 0.5s var(--ease-out) backwards;
+        }
+        .history-card:hover {
+            border-color: var(--border-active);
+            transform: translateX(4px);
+        }
+
+        .history-pieces {
+            display: flex;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+        .history-piece-img {
+            width: 60px;
+            height: 80px;
+            border-radius: var(--radius-sm);
+            object-fit: cover;
+            border: 1px solid var(--border-color);
+        }
+
+        .history-info { flex: 1; min-width: 0; }
+        .history-info h4 {
+            font-family: var(--font-body);
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .history-meta {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 6px;
+        }
+        .history-meta span { display: flex; align-items: center; gap: 4px; }
+
+        .history-rating {
+            display: flex;
+            gap: 2px;
+        }
+        .star { cursor: pointer; font-size: 1.1rem; transition: transform 0.15s; }
+        .star:hover { transform: scale(1.3); }
+        .star.filled { color: var(--accent-gold); }
+        .star.empty { color: var(--text-muted); }
+
+        /* Calendar View */
+        .calendar-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .calendar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .calendar-header h3 {
+            font-family: var(--font-body);
+            font-size: 1.1rem;
+        }
+        .calendar-nav {
+            display: flex;
+            gap: 8px;
+        }
+        .calendar-nav button {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            font-size: 0.85rem;
+        }
+        .calendar-nav button:hover { border-color: var(--accent-primary); }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+        }
+        .calendar-day-header {
+            text-align: center;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            padding: 8px 0;
+            text-transform: uppercase;
+        }
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .calendar-day:hover { background: var(--bg-card-hover); }
+        .calendar-day.today {
+            background: var(--accent-primary-glow);
+            font-weight: 700;
+        }
+        .calendar-day.has-event::after {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent-secondary);
+            position: absolute;
+            bottom: 4px;
+        }
+        .calendar-day.has-outfit::after {
+            background: var(--success);
+        }
+        .calendar-day.other-month { color: var(--text-muted); opacity: 0.4; }
+        .calendar-day.selected {
+            background: var(--accent-primary);
+            color: white;
+        }
+
+        /* Event Card */
+        .event-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            transition: all 0.2s;
+            animation: fadeUp 0.4s var(--ease-out) backwards;
+        }
+        .event-card:hover {
+            border-color: var(--border-active);
+        }
+        .event-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+        .event-info { flex: 1; }
+        .event-info h4 { font-family: var(--font-body); font-size: 0.9rem; font-weight: 600; }
+        .event-info p { font-size: 0.8rem; color: var(--text-secondary); }
+
+        /* Add Event Form */
+        .add-event-form {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        @media (max-width: 500px) { .form-row { grid-template-columns: 1fr; } }
+
+        /* Log Outfit Modal */
+        .log-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            z-index: 200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .log-modal.active { display: flex; }
+        .log-modal-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: 32px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: fadeUp 0.3s var(--ease-spring);
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+    <a href="index.html" class="navbar-brand">
+        <svg width="24" height="28" viewBox="0 0 64 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M32 4 C32 4 32 8 32 9" stroke="var(--accent-primary)" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M26 9 Q32 6 38 9" stroke="var(--accent-primary)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+            <path d="M25 10 C23 12 21 16 20 20 L24 22 L32 20 L40 22 L44 20 C43 16 41 12 39 10 Q35 8 32 9 Q29 8 25 10Z" fill="var(--accent-primary)" opacity="0.9"/>
+            <path d="M24 22 C24 24 26 26 28 27 L32 28 L36 27 C38 26 40 24 40 22" fill="var(--accent-primary)" opacity="0.85"/>
+            <path d="M28 27 C24 32 14 50 12 66 L52 66 C50 50 40 32 36 27 C36 27 34 28 32 28 C30 28 28 27 28 27Z" fill="var(--accent-primary)" opacity="0.75"/>
+        </svg>
+        <span style="font-family: var(--font-display); font-weight: 500;">Kya Pehnu?</span>
+    </a>
+    <div class="navbar-links">
+        <a href="wardrobe.html" class="nav-link">Wardrobe</a>
+        <a href="occasion.html" class="nav-link">Occasions</a>
+        <a href="tryon.html" class="nav-link">Try-On</a>
+        <a href="favorites.html" class="nav-link">⭐</a>
+        <a href="history.html" class="nav-link">📅</a>
+        <a href="stats.html" class="nav-link">📊</a>
+        <a href="profile.html" class="nav-link">👤</a>
+        <div class="nav-avatar" id="navAvatar" onclick="window.location='profile.html'">U</div>
+    </div>
+</nav>
+
+<div class="history-page">
+    <div class="container">
+        <div class="page-header">
+            <div>
+                <h1 style="font-size:1.8rem">
+                    <span class="text-gradient">History & Calendar</span>
+                </h1>
+                <p class="text-muted">Track your outfits and plan ahead</p>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="openLogModal()">
+                + Log Today's Outfit
+            </button>
+        </div>
+
+        <!-- Tabs -->
+        <div class="page-tabs">
+            <button class="page-tab active" onclick="switchHistoryTab('history', this)">📜 History</button>
+            <button class="page-tab" onclick="switchHistoryTab('calendar', this)">📅 Calendar</button>
+            <button class="page-tab" onclick="switchHistoryTab('events', this)">🎯 Events</button>
+        </div>
+
+        <!-- History Tab -->
+        <div id="historyTab">
+            <div class="history-list" id="historyList">
+                <div style="text-align:center; padding:40px">
+                    <div class="spinner" style="margin:0 auto"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calendar Tab -->
+        <div id="calendarTab" style="display:none">
+            <div class="calendar-container">
+                <div class="calendar-header">
+                    <div class="calendar-nav">
+                        <button onclick="changeMonth(-1)">‹</button>
+                    </div>
+                    <h3 id="calendarTitle">January 2025</h3>
+                    <div class="calendar-nav">
+                        <button onclick="changeMonth(1)">›</button>
+                    </div>
+                </div>
+                <div class="calendar-grid" id="calendarGrid">
+                    <!-- Filled by JS -->
+                </div>
+            </div>
+
+            <!-- Selected day events -->
+            <div id="dayEvents" style="display:none">
+                <h3 style="font-family:var(--font-body); margin-bottom:12px" id="dayEventsTitle">Events</h3>
+                <div id="dayEventsList"></div>
+            </div>
+        </div>
+
+        <!-- Events Tab -->
+        <div id="eventsTab" style="display:none">
+            <!-- Upcoming Events -->
+            <h3 style="font-family:var(--font-body); margin-bottom:16px">📅 Upcoming Events</h3>
+            <div id="upcomingEvents" style="margin-bottom:32px">
+                <p class="text-muted">Loading...</p>
+            </div>
+
+            <!-- Add Event Form -->
+            <div class="add-event-form">
+                <h3 style="font-family:var(--font-body); margin-bottom:16px">+ Plan New Event</h3>
+                <form id="addEventForm">
+                    <div class="input-group">
+                        <label>Event Name</label>
+                        <input type="text" class="input" id="eventTitle" placeholder="e.g., Team Meeting, Birthday Party" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="input-group">
+                            <label>Date</label>
+                            <input type="date" class="input" id="eventDate" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Time (optional)</label>
+                            <input type="time" class="input" id="eventTime">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="input-group">
+                            <label>Occasion Type</label>
+                            <select class="input" id="eventOccasion">
+                                <option value="casual">☕ Casual</option>
+                                <option value="office">💼 Office</option>
+                                <option value="party">🎉 Party</option>
+                                <option value="wedding">💒 Wedding</option>
+                                <option value="date">❤️ Date</option>
+                                <option value="outdoor">🏕️ Outdoor</option>
+                                <option value="formal">🎩 Formal</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Location (optional)</label>
+                            <input type="text" class="input" id="eventLocation" placeholder="e.g., Office, Restaurant">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Notes (optional)</label>
+                        <input type="text" class="input" id="eventNotes" placeholder="Any specific requirements">
+                    </div>
+                    <button type="submit" class="btn btn-primary">📅 Add Event</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Log Outfit Modal -->
+<div class="log-modal" id="logModal">
+    <div class="log-modal-content">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px">
+            <h2 style="font-size:1.3rem; font-family:var(--font-body)">👕 Log Today's Outfit</h2>
+            <button style="background:none; border:none; color:var(--text-secondary); cursor:pointer; font-size:1.2rem"
+                onclick="closeLogModal()">✕</button>
+        </div>
+
+        <form id="logOutfitForm">
+            <!-- Garment Selection -->
+            <div class="input-group">
+                <label>Select garments you wore</label>
+                <div id="logGarmentGrid" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(60px,1fr)); gap:6px; max-height:200px; overflow-y:auto">
+                    <!-- Filled by JS -->
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="input-group">
+                    <label>Occasion</label>
+                    <select class="input" id="logOccasion">
+                        <option value="casual">Casual</option>
+                        <option value="office">Office</option>
+                        <option value="party">Party</option>
+                        <option value="date">Date</option>
+                        <option value="outdoor">Outdoor</option>
+                        <option value="formal">Formal</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Date</label>
+                    <input type="date" class="input" id="logDate" value="">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Name this outfit (optional)</label>
+                <input type="text" class="input" id="logName" placeholder="e.g., Monday Blues">
+            </div>
+
+            <div class="input-group">
+                <label>Rate it</label>
+                <div class="history-rating" id="logRating">
+                    <span class="star empty" data-rating="1" onclick="setLogRating(1)">★</span>
+                    <span class="star empty" data-rating="2" onclick="setLogRating(2)">★</span>
+                    <span class="star empty" data-rating="3" onclick="setLogRating(3)">★</span>
+                    <span class="star empty" data-rating="4" onclick="setLogRating(4)">★</span>
+                    <span class="star empty" data-rating="5" onclick="setLogRating(5)">★</span>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Notes (optional)</label>
+                <input type="text" class="input" id="logNotes" placeholder="How did you feel wearing it?">
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">✅ Log Outfit</button>
+        </form>
+    </div>
+</div>
+
+<script src="js/app.js"></script>
+<script>
+    // ━━━ State ━━━
+    let logSelectedGarments = [];
+    let logRatingValue = 0;
+    let calendarDate = new Date();
+    let allGarments = [];
+
+    // ━━━ Init ━━━
+    async function initHistory() {
+        if (!requireAuth()) return;
+        updateNavbar();
+
+        // Set today's date in log form
+        document.getElementById('logDate').value = new Date().toISOString().split('T')[0];
+        document.getElementById('eventDate').value = new Date().toISOString().split('T')[0];
+
+        // Load data
+        loadHistory();
+        loadGarments();
+        renderCalendar();
+        loadUpcomingEvents();
+
+        // Event form
+        document.getElementById('addEventForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await addEvent();
+        });
+
+        // Log form
+        document.getElementById('logOutfitForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await logOutfit();
+        });
+    }
+
+    // ━━━ Tab Switching ━━━
+    function switchHistoryTab(tab, btn) {
+        document.querySelectorAll('.page-tab').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('historyTab').style.display = tab === 'history' ? 'block' : 'none';
+        document.getElementById('calendarTab').style.display = tab === 'calendar' ? 'block' : 'none';
+        document.getElementById('eventsTab').style.display = tab === 'events' ? 'block' : 'none';
+    }
+
+    // ━━━ Load History ━━━
+    async function loadHistory() {
+        try {
+            const data = await api('/history/recent?limit=20');
+            renderHistory(data.history);
+        } catch (err) {
+            showToast(err.message, 'error');
+        }
+    }
+
+    function renderHistory(history) {
+        const list = document.getElementById('historyList');
+
+        if (!history || history.length === 0) {
+            list.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">📜</div>
+                    <h3>No outfit history yet</h3>
+                    <p class="text-muted">Start logging what you wear to track your style</p>
+                    <button class="btn btn-primary" style="margin-top:16px" onclick="openLogModal()">
+                        + Log Today's Outfit
+                    </button>
+                </div>`;
+            return;
+        }
+
+        list.innerHTML = history.map((h, i) => {
+            const pieces = h.pieces || [];
+            const piecesHTML = pieces.slice(0, 4).map(p =>
+                `<img class="history-piece-img" src="${p.image_url}" alt="${p.metadata?.subtype || 'item'}" loading="lazy">`
+            ).join('');
+
+            const stars = Array.from({length: 5}, (_, i) =>
+                `<span class="star ${i < (h.rating || 0) ? 'filled' : 'empty'}">★</span>`
+            ).join('');
+
+            return `
+                <div class="history-card" style="animation-delay:${i * 0.05}s">
+                    <div class="history-pieces">${piecesHTML || '<div style="width:60px;height:80px;background:var(--bg-input);border-radius:var(--radius-sm)"></div>'}</div>
+                    <div class="history-info">
+                        <h4>${h.outfit_name || h.occasion.charAt(0).toUpperCase() + h.occasion.slice(1) + ' Outfit'}</h4>
+                        <div class="history-meta">
+                            <span>📅 ${h.worn_on || 'Today'}</span>
+                            <span>🏷️ ${h.occasion}</span>
+                            ${h.weather ? `<span>🌤️ ${h.weather} ${h.temperature ? h.temperature + '°C' : ''}</span>` : ''}
+                        </div>
+                        ${h.notes ? `<p class="text-muted" style="font-size:0.8rem; margin-top:4px">${h.notes}</p>` : ''}
+                        <div class="history-rating" style="margin-top:6px">${stars}</div>
+                    </div>
+                </div>`;
+        }).join('');
+    }
+
+    // ━━━ Load Garments for Log Modal ━━━
+    async function loadGarments() {
+        try {
+            const data = await api('/wardrobe');
+            allGarments = data.garments;
+        } catch (err) {
+            console.log('Could not load garments');
+        }
+    }
+
+    // ━━━ Log Modal ━━━
+    function openLogModal() {
+        logSelectedGarments = [];
+        logRatingValue = 0;
+
+        const grid = document.getElementById('logGarmentGrid');
+        grid.innerHTML = allGarments.map(g => `
+            <div style="border-radius:var(--radius-sm); overflow:hidden; border:2px solid var(--border-color);
+                cursor:pointer; transition:all 0.15s" data-id="${g.id}"
+                onclick="toggleLogGarment(this, '${g.id}')">
+                <img src="${g.image_url}" style="width:100%; aspect-ratio:3/4; object-fit:cover" alt="">
+            </div>
+        `).join('');
+
+        // Reset rating stars
+        document.querySelectorAll('#logRating .star').forEach(s => {
+            s.classList.remove('filled');
+            s.classList.add('empty');
+        });
+
+        document.getElementById('logModal').classList.add('active');
+    }
+
+    function closeLogModal() {
+        document.getElementById('logModal').classList.remove('active');
+    }
+
+    function toggleLogGarment(el, id) {
+        if (logSelectedGarments.includes(id)) {
+            logSelectedGarments = logSelectedGarments.filter(g => g !== id);
+            el.style.borderColor = 'var(--border-color)';
+        } else {
+            logSelectedGarments.push(id);
+            el.style.borderColor = 'var(--accent-primary)';
+            el.style.boxShadow = '0 0 0 2px var(--accent-primary-glow)';
+        }
+    }
+
+    function setLogRating(rating) {
+        logRatingValue = rating;
+        document.querySelectorAll('#logRating .star').forEach((s, i) => {
+            if (i < rating) {
+                s.classList.add('filled');
+                s.classList.remove('empty');
+            } else {
+                s.classList.remove('filled');
+                s.classList.add('empty');
+            }
+        });
+    }
+
+    async function logOutfit() {
+        if (logSelectedGarments.length === 0) {
+            showToast('Select at least one garment', 'warning');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('garment_ids', JSON.stringify(logSelectedGarments));
+        formData.append('occasion', document.getElementById('logOccasion').value);
+        formData.append('worn_on', document.getElementById('logDate').value);
+        formData.append('outfit_name', document.getElementById('logName').value);
+        formData.append('rating', logRatingValue);
+        formData.append('notes', document.getElementById('logNotes').value);
+
+        try {
+            await api('/history/log', { method: 'POST', body: formData });
+            showToast('Outfit logged! 📝', 'success');
+            closeLogModal();
+            loadHistory();
+        } catch (err) {
+            showToast(err.message, 'error');
+        }
+    }
+
+    // ━━━ Calendar ━━━
+    function renderCalendar() {
+        const grid = document.getElementById('calendarGrid');
+        const year = calendarDate.getFullYear();
+        const month = calendarDate.getMonth();
+
+        const monthNames = ['January','February','March','April','May','June',
+            'July','August','September','October','November','December'];
+        document.getElementById('calendarTitle').textContent = `${monthNames[month]} ${year}`;
+
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const today = new Date();
+
+        let html = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d =>
+            `<div class="calendar-day-header">${d}</div>`
+        ).join('');
+
+        // Previous month padding
+        const prevDays = new Date(year, month, 0).getDate();
+        for (let i = firstDay - 1; i >= 0; i--) {
+            html += `<div class="calendar-day other-month">${prevDays - i}</div>`;
+        }
+
+        // Current month
+        for (let day = 1; day <= daysInMonth; day++) {
+            const isToday = day === today.getDate() && month === today.getMonth() && year === today.getFullYear();
+            const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+
+            html += `<div class="calendar-day ${isToday ? 'today' : ''}"
+                onclick="selectCalendarDay('${dateStr}')">${day}</div>`;
+        }
+
+        // Next month padding
+        const totalCells = firstDay + daysInMonth;
+        const remaining = 7 - (totalCells % 7);
+        if (remaining < 7) {
+            for (let i = 1; i <= remaining; i++) {
+                html += `<div class="calendar-day other-month">${i}</div>`;
+            }
+        }
+
+        grid.innerHTML = html;
+    }
+
+    function changeMonth(delta) {
+        calendarDate.setMonth(calendarDate.getMonth() + delta);
+        renderCalendar();
+    }
+
+    function selectCalendarDay(dateStr) {
+        // Deselect all
+        document.querySelectorAll('.calendar-day.selected').forEach(d => d.classList.remove('selected'));
+
+        // Select clicked
+        event.target.classList.add('selected');
+
+        // Show events for this day
+        document.getElementById('dayEvents').style.display = 'block';
+        document.getElementById('dayEventsTitle').textContent = `Events on ${dateStr}`;
+        document.getElementById('dayEventsList').innerHTML = `
+            <p class="text-muted" style="font-size:0.85rem">No events on this date</p>
+            <button class="btn btn-sm btn-secondary" style="margin-top:8px"
+                onclick="switchHistoryTab('events', document.querySelectorAll('.page-tab')[2]); document.getElementById('eventDate').value='${dateStr}'">
+                + Add Event
+            </button>
+        `;
+    }
+
+    // ━━━ Events ━━━
+    async function loadUpcomingEvents() {
+        try {
+            const data = await api('/calendar/upcoming');
+            renderUpcomingEvents(data.events);
+        } catch (err) {
+            document.getElementById('upcomingEvents').innerHTML =
+                '<p class="text-muted">Could not load events</p>';
+        }
+    }
+
+    function renderUpcomingEvents(events) {
+        const container = document.getElementById('upcomingEvents');
+
+        if (!events || events.length === 0) {
+            container.innerHTML = `
+                <div style="text-align:center; padding:24px; background:var(--bg-card);
+                    border:1px solid var(--border-color); border-radius:var(--radius-lg)">
+                    <p style="font-size:2rem; margin-bottom:8px">📅</p>
+                    <p class="text-muted">No upcoming events</p>
+                    <p class="text-muted" style="font-size:0.8rem">Plan your events below!</p>
+                </div>`;
+            return;
+        }
+
+        const occasionIcons = {
+            casual: '☕', office: '💼', party: '🎉', wedding: '💒',
+            date: '❤️', outdoor: '🏕️', formal: '🎩'
+        };
+        const occasionColors = {
+            casual: 'rgba(78,205,196,0.15)', office: 'rgba(124,92,252,0.15)',
+            party: 'rgba(255,107,157,0.15)', wedding: 'rgba(255,215,0,0.15)',
+            date: 'rgba(255,71,87,0.15)', outdoor: 'rgba(0,184,148,0.15)',
+            formal: 'rgba(162,155,254,0.15)'
+        };
+
+        container.innerHTML = events.map((e, i) => {
+            const icon = occasionIcons[e.occasion_type] || '📌';
+            const bgColor = occasionColors[e.occasion_type] || 'var(--bg-card-hover)';
+            const daysUntil = Math.ceil((new Date(e.event_date) - new Date()) / (1000*60*60*24));
+            const daysText = daysUntil === 0 ? 'Today!' : daysUntil === 1 ? 'Tomorrow' : `In ${daysUntil} days`;
+
+            return `
+                <div class="event-card" style="animation-delay:${i*0.05}s">
+                    <div class="event-icon" style="background:${bgColor}">${icon}</div>
+                    <div class="event-info">
+                        <h4>${e.title}</h4>
+                        <p>📅 ${e.event_date} ${e.event_time ? '⏰ ' + e.event_time : ''}</p>
+                        <p>${e.location ? '📍 ' + e.location : ''}</p>
+                    </div>
+                    <div style="text-align:right">
+                        <span class="badge ${daysUntil <= 1 ? 'badge-warning' : 'badge-info'}">${daysText}</span>
+                        <br>
+                        <button class="btn btn-sm btn-secondary" style="margin-top:8px"
+                            onclick="planOutfitForEvent('${e.occasion_type}')">
+                            👗 Plan Outfit
+                        </button>
+                    </div>
+                </div>`;
+        }).join('');
+    }
+
+    async function addEvent() {
+        const formData = new FormData();
+        formData.append('title', document.getElementById('eventTitle').value);
+        formData.append('event_date', document.getElementById('eventDate').value);
+        formData.append('event_time', document.getElementById('eventTime').value);
+        formData.append('occasion_type', document.getElementById('eventOccasion').value);
+        formData.append('location', document.getElementById('eventLocation').value);
+        formData.append('notes', document.getElementById('eventNotes').value);
+
+        try {
+            await api('/calendar/event', { method: 'POST', body: formData });
+            showToast('Event added! 📅', 'success');
+            document.getElementById('addEventForm').reset();
+            document.getElementById('eventDate').value = new Date().toISOString().split('T')[0];
+            loadUpcomingEvents();
+        } catch (err) {
+            showToast(err.message, 'error');
+        }
+    }
+
+    function planOutfitForEvent(occasion) {
+        localStorage.setItem('styleai_occasion', occasion);
+        window.location.href = 'outfits.html';
+    }
+
+    initHistory();
+</script>
+<button class="btn btn-sm btn-secondary" style=" position: fixed;
+    bottom: 0;
+    right: 0;
+    text-align: center;
+    z-index: 1000;" onclick="toggleTheme()">
+    🌓
+</button></body>
+</html>

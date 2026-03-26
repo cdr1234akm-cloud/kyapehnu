@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kya Pehnu?</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 72'><path d='M32 4 C32 4 32 8 32 9' stroke='%23D4A017' stroke-width='1.5' stroke-linecap='round'/><path d='M26 9 Q32 6 38 9' stroke='%23D4A017' stroke-width='1.5' stroke-linecap='round' fill='none'/><path d='M25 10 C23 12 21 16 20 20 L24 22 L32 20 L40 22 L44 20 C43 16 41 12 39 10 Q35 8 32 9 Q29 8 25 10Z' fill='%23D4A017' opacity='0.9'/><path d='M24 22 C24 24 26 26 28 27 L32 28 L36 27 C38 26 40 24 40 22' fill='%23D4A017' opacity='0.85'/><path d='M28 27 C24 32 14 50 12 66 L52 66 C50 50 40 32 36 27 C36 27 34 28 32 28 C30 28 28 27 28 27Z' fill='%23D4A017' opacity='0.75'/></svg>">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+    <a href="index.html" class="navbar-brand">
+        <svg width="24" height="28" viewBox="0 0 64 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M32 4 C32 4 32 8 32 9" stroke="var(--accent-primary)" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M26 9 Q32 6 38 9" stroke="var(--accent-primary)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+            <path d="M25 10 C23 12 21 16 20 20 L24 22 L32 20 L40 22 L44 20 C43 16 41 12 39 10 Q35 8 32 9 Q29 8 25 10Z" fill="var(--accent-primary)" opacity="0.9"/>
+            <path d="M24 22 C24 24 26 26 28 27 L32 28 L36 27 C38 26 40 24 40 22" fill="var(--accent-primary)" opacity="0.85"/>
+            <path d="M28 27 C24 32 14 50 12 66 L52 66 C50 50 40 32 36 27 C36 27 34 28 32 28 C30 28 28 27 28 27Z" fill="var(--accent-primary)" opacity="0.75"/>
+        </svg>
+        <span style="font-family: var(--font-display); font-weight: 500;">Kya Pehnu?</span>
+    </a>
+    <div class="navbar-links">
+        <a href="#features" class="nav-link">Features</a>
+        <a href="#how" class="nav-link">How It Works</a>
+        <a href="login.html" class="btn btn-sm btn-primary">Get Started</a>
+    </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+    <h1 class="hero-title">
+        Your Wardrobe,<br>
+        <span class="text-gradient">Styled by AI</span>
+    </h1>
+    <p class="hero-subtitle">
+        Upload your clothes, pick an occasion, and let AI create perfect outfit
+        combinations — personalised to your style, body, and the event.
+    </p>
+    <div class="hero-actions">
+        <a href="login.html" class="btn btn-lg btn-primary">✨ Start For Free</a>
+        <a href="#features" class="btn btn-lg btn-secondary">Learn More</a>
+    </div>
+
+    <!-- Floating fashion icons -->
+    <div style="position:absolute; top:20%; left:10%; font-size:2rem; opacity:0.15; animation: floatBg 15s infinite">👔</div>
+    <div style="position:absolute; top:30%; right:15%; font-size:2.5rem; opacity:0.1; animation: floatBg 18s infinite reverse">👗</div>
+    <div style="position:absolute; bottom:25%; left:20%; font-size:2rem; opacity:0.12; animation: floatBg 12s infinite">👟</div>
+    <div style="position:absolute; bottom:20%; right:10%; font-size:1.8rem; opacity:0.1; animation: floatBg 16s infinite reverse">👜</div>
+</section>
+
+<!-- Features -->
+<section id="features" class="features-section">
+    <div class="container">
+        <h2 class="text-center" style="margin-bottom:48px">
+            Everything You Need to <span class="text-gradient">Dress Smart</span>
+        </h2>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">📸</div>
+                <h3>Upload & Analyse</h3>
+                <p class="text-muted" style="margin-top:8px">
+                    Upload photos of your clothes. AI analyses color, pattern, type, and occasion suitability instantly.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <h3>Occasion-Based</h3>
+                <p class="text-muted" style="margin-top:8px">
+                    Office meeting? Wedding? Date night? Get outfit combos ranked specifically for your event.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🤖</div>
+                <h3>AI Stylist</h3>
+                <p class="text-muted" style="margin-top:8px">
+                    Powered by Claude AI — understands color harmony, formality levels, and personal style preferences.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🛍️</div>
+                <h3>Complete the Look</h3>
+                <p class="text-muted" style="margin-top:8px">
+                    Missing a belt or shoes? Get affiliate product suggestions to complete any outfit.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3>Smart Caching</h3>
+                <p class="text-muted" style="margin-top:8px">
+                    Garments analysed once, combos cached. Lightning-fast suggestions every time you return.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">💰</div>
+                <h3>Nearly Free</h3>
+                <p class="text-muted" style="margin-top:8px">
+                    Pay less than ₹0.20 per garment analysis. Most operations hit cache — zero ongoing cost.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works -->
+<section id="how" style="padding:100px 20px">
+    <div class="container" style="max-width:700px">
+        <h2 class="text-center" style="margin-bottom:48px">
+            How It <span class="text-gradient">Works</span>
+        </h2>
+
+        <div style="display:flex; flex-direction:column; gap:24px">
+            <div class="card" style="display:flex; align-items:center; gap:20px">
+                <div style="width:48px;height:48px;border-radius:50%;background:var(--accent-primary-glow);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.2rem;flex-shrink:0;color:var(--accent-primary)">1</div>
+                <div>
+                    <h3 style="font-family:var(--font-body);font-size:1rem;margin-bottom:4px">Upload Your Wardrobe</h3>
+                    <p class="text-muted" style="font-size:0.9rem">Drag & drop photos of your clothes. AI analyses each piece automatically.</p>
+                </div>
+            </div>
+
+            <div class="card" style="display:flex; align-items:center; gap:20px">
+                <div style="width:48px;height:48px;border-radius:50%;background:rgba(255,107,157,0.15);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.2rem;flex-shrink:0;color:var(--accent-secondary)">2</div>
+                <div>
+                    <h3 style="font-family:var(--font-body);font-size:1rem;margin-bottom:4px">Pick Your Occasion</h3>
+                    <p class="text-muted" style="font-size:0.9rem">Office, party, wedding, casual, date — choose what you're dressing for.</p>
+                </div>
+            </div>
+
+            <div class="card" style="display:flex; align-items:center; gap:20px">
+                <div style="width:48px;height:48px;border-radius:50%;background:rgba(0,214,143,0.15);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.2rem;flex-shrink:0;color:var(--success)">3</div>
+                <div>
+                    <h3 style="font-family:var(--font-body);font-size:1rem;margin-bottom:4px">Get Perfect Outfits</h3>
+                    <p class="text-muted" style="font-size:0.9rem">AI ranks the best combinations from your wardrobe with styling tips.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center" style="margin-top:48px">
+            <a href="login.html" class="btn btn-lg btn-primary">Get Started Free →</a>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer style="padding:40px 20px; text-align:center; border-top:1px solid var(--border-color)">
+    <p class="text-muted" style="font-size:0.85rem">
+        © 2024 StyleAI — AI-Powered Personal Stylist
+    </p>
+</footer>
+</body>
+</html>

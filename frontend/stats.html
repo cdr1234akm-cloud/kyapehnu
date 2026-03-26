@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kya Pehnu?</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 72'><path d='M32 4 C32 4 32 8 32 9' stroke='%23D4A017' stroke-width='1.5' stroke-linecap='round'/><path d='M26 9 Q32 6 38 9' stroke='%23D4A017' stroke-width='1.5' stroke-linecap='round' fill='none'/><path d='M25 10 C23 12 21 16 20 20 L24 22 L32 20 L40 22 L44 20 C43 16 41 12 39 10 Q35 8 32 9 Q29 8 25 10Z' fill='%23D4A017' opacity='0.9'/><path d='M24 22 C24 24 26 26 28 27 L32 28 L36 27 C38 26 40 24 40 22' fill='%23D4A017' opacity='0.85'/><path d='M28 27 C24 32 14 50 12 66 L52 66 C50 50 40 32 36 27 C36 27 34 28 32 28 C30 28 28 27 28 27Z' fill='%23D4A017' opacity='0.75'/></svg>">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .stats-page { padding-top: 80px; min-height: 100vh; }
+
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card-big {
+            padding: 24px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            text-align: center;
+            transition: all 0.3s var(--ease-out);
+            animation: fadeUp 0.5s var(--ease-out) backwards;
+        }
+        .stat-card-big:hover { transform: translateY(-4px); border-color: var(--border-active); }
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            font-family: var(--font-display);
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .stat-label-big { font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px; }
+
+        .stats-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            margin-bottom: 24px;
+            animation: fadeUp 0.5s var(--ease-out) backwards;
+        }
+        .stats-section h3 {
+            font-family: var(--font-body);
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        /* Bar Chart */
+        .bar-chart { display: flex; flex-direction: column; gap: 10px; }
+        .bar-row { display: flex; align-items: center; gap: 12px; }
+        .bar-label { width: 80px; font-size: 0.8rem; color: var(--text-secondary); text-transform: capitalize; }
+        .bar-track { flex: 1; height: 24px; background: var(--bg-input); border-radius: 12px; overflow: hidden; }
+        .bar-fill {
+            height: 100%;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            padding-left: 10px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: white;
+            transition: width 1s var(--ease-out);
+        }
+        .bar-count { width: 30px; font-size: 0.8rem; font-weight: 600; text-align: right; }
+
+        /* Color Palette */
+        .color-palette-display {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .palette-swatch {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+        .palette-color {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: 3px solid var(--bg-card);
+            box-shadow: 0 0 0 1px var(--border-color);
+            transition: transform 0.2s var(--ease-spring);
+        }
+        .palette-color:hover { transform: scale(1.2); }
+        .palette-name { font-size: 0.7rem; color: var(--text-secondary); text-transform: capitalize; }
+
+        /* Insights */
+        .insight-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 14px;
+            background: var(--bg-card-hover);
+            border-radius: var(--radius-md);
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+        .insight-icon { font-size: 1.2rem; flex-shrink: 0; }
+
+        /* Formality Meter */
+        .formality-meter {
+            display: flex;
+            gap: 4px;
+            margin-top: 8px;
+        }
+        .formality-segment {
+            flex: 1;
+            height: 32px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        /* Most/Never Worn */
+        .worn-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 8px;
+        }
+        .worn-item {
+            position: relative;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+        .worn-item img { width: 100%; aspect-ratio: 3/4; object-fit: cover; }
+        .worn-badge {
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            padding: 2px 6px;
+            border-radius: var(--radius-full);
+            font-size: 0.6rem;
+            font-weight: 700;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+        @media (max-width: 768px) { .two-column { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <a href="index.html" class="navbar-brand">
+        <svg width="24" height="28" viewBox="0 0 64 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M32 4 C32 4 32 8 32 9" stroke="var(--accent-primary)" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M26 9 Q32 6 38 9" stroke="var(--accent-primary)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+            <path d="M25 10 C23 12 21 16 20 20 L24 22 L32 20 L40 22 L44 20 C43 16 41 12 39 10 Q35 8 32 9 Q29 8 25 10Z" fill="var(--accent-primary)" opacity="0.9"/>
+            <path d="M24 22 C24 24 26 26 28 27 L32 28 L36 27 C38 26 40 24 40 22" fill="var(--accent-primary)" opacity="0.85"/>
+            <path d="M28 27 C24 32 14 50 12 66 L52 66 C50 50 40 32 36 27 C36 27 34 28 32 28 C30 28 28 27 28 27Z" fill="var(--accent-primary)" opacity="0.75"/>
+        </svg>
+        <span style="font-family: var(--font-display); font-weight: 500;">Kya Pehnu?</span>
+    </a>
+    <div class="navbar-links">
+        <a href="wardrobe.html" class="nav-link">Wardrobe</a>
+        <a href="occasion.html" class="nav-link">Occasions</a>
+        <a href="tryon.html" class="nav-link">Try-On</a>
+        <a href="history.html" class="nav-link">History</a>
+        <a href="stats.html" class="nav-link active">Stats</a>
+        <a href="profile.html" class="nav-link">Profile</a>
+        <div class="nav-avatar" id="navAvatar" onclick="window.location='profile.html'">U</div>
+    </div>
+</nav>
+
+<div class="stats-page">
+    <div class="container">
+        <div class="page-header">
+            <div>
+                <h1 style="font-size:1.8rem">
+                    <span class="text-gradient">Wardrobe Analytics</span>
+                </h1>
+                <p class="text-muted">Insights about your style and wardrobe</p>
+            </div>
+        </div>
+
+        <!-- Overview Stats -->
+        <div class="stats-overview" id="statsOverview">
+            <div class="stat-card-big" style="animation-delay:0s">
+                <div class="stat-number" id="totalGarments">-</div>
+                <div class="stat-label-big">Total Items</div>
+            </div>
+            <div class="stat-card-big" style="animation-delay:0.05s">
+                <div class="stat-number" id="totalFavorites">-</div>
+                <div class="stat-label-big">Favorites</div>
+            </div>
+            <div class="stat-card-big" style="animation-delay:0.1s">
+                <div class="stat-number" id="totalOutfits">-</div>
+                <div class="stat-label-big">Saved Outfits</div>
+            </div>
+            <div class="stat-card-big" style="animation-delay:0.15s">
+                <div class="stat-number" id="totalWorn">-</div>
+                <div class="stat-label-big">Times Worn</div>
+            </div>
+        </div>
+
+        <!-- AI Insights -->
+        <div class="stats-section" style="animation-delay:0.2s">
+            <h3>🧠 AI Insights</h3>
+            <div id="insightsContainer">
+                <p class="text-muted">Analysing your wardrobe...</p>
+            </div>
+        </div>
+
+        <div class="two-column">
+            <!-- By Type -->
+            <div class="stats-section" style="animation-delay:0.25s">
+                <h3>👕 By Type</h3>
+                <div class="bar-chart" id="typeChart">
+                    <p class="text-muted">Loading...</p>
+                </div>
+            </div>
+
+            <!-- By Color -->
+            <div class="stats-section" style="animation-delay:0.3s">
+                <h3>🎨 Your Color Palette</h3>
+                <div class="color-palette-display" id="colorPalette">
+                    <p class="text-muted">Loading...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="two-column">
+            <!-- By Occasion -->
+            <div class="stats-section" style="animation-delay:0.35s">
+                <h3>🎯 Occasion Coverage</h3>
+                <div class="bar-chart" id="occasionChart">
+                    <p class="text-muted">Loading...</p>
+                </div>
+            </div>
+
+            <!-- Formality -->
+            <div class="stats-section" style="animation-delay:0.4s">
+                <h3>📊 Formality Range</h3>
+                <div id="formalityMeter">
+                    <p class="text-muted">Loading...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="two-column" style="padding-bottom:60px">
+            <!-- Most Worn -->
+            <div class="stats-section" style="animation-delay:0.45s">
+                <h3>🔥 Most Worn</h3>
+                <div class="worn-grid" id="mostWornGrid">
+                    <p class="text-muted" style="grid-column:1/-1">No wear data yet — log your outfits!</p>
+                </div>
+            </div>
+
+            <!-- Never Worn -->
+            <div class="stats-section" style="animation-delay:0.5s">
+                <h3>🏷️ Never Worn</h3>
+                <div class="worn-grid" id="neverWornGrid">
+                    <p class="text-muted" style="grid-column:1/-1">Loading...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="js/app.js"></script>
+<script>
+    const colorHexMap = {
+        black:'#1a1a1a', white:'#f5f5f5', navy:'#1a237e', blue:'#2196F3',
+        red:'#e53935', green:'#4CAF50', yellow:'#FFC107', pink:'#E91E63',
+        purple:'#9C27B0', orange:'#FF9800', brown:'#795548', grey:'#9E9E9E',
+        gray:'#9E9E9E', beige:'#D4C5A9', cream:'#FFFDD0', maroon:'#800000',
+        olive:'#808000', teal:'#008080', burgundy:'#800020', tan:'#D2B48C',
+        'sky blue':'#87CEEB', charcoal:'#36454F', coral:'#FF7F50',
+        lavender:'#E6E6FA', gold:'#FFD700', silver:'#C0C0C0'
+    };
+
+    const barColors = ['#7c5cfc','#ff6b9d','#4ecdc4','#ffd700','#00d68f','#ff9800','#e53935'];
+
+    async function initStats() {
+        if (!requireAuth()) return;
+        updateNavbar();
+
+        try {
+            const stats = await api('/stats/wardrobe');
+            renderStats(stats);
+        } catch (err) {
+            showToast(err.message, 'error');
+        }
+    }
+
+    function renderStats(s) {
+        // Overview
+        document.getElementById('totalGarments').textContent = s.total_garments || 0;
+        document.getElementById('totalFavorites').textContent = s.favorites || 0;
+        document.getElementById('totalOutfits').textContent = s.saved_outfits || 0;
+        document.getElementById('totalWorn').textContent = s.outfits_worn || 0;
+
+        // Insights
+        const insightsContainer = document.getElementById('insightsContainer');
+        if (s.insights && s.insights.length > 0) {
+            insightsContainer.innerHTML = s.insights.map(insight => `
+                <div class="insight-card">
+                    <span class="insight-icon">${insight.startsWith('💡') || insight.startsWith('⚠️') || insight.startsWith('📌') ? '' : '💡'}</span>
+                    <span>${insight}</span>
+                </div>
+            `).join('');
+        } else {
+            insightsContainer.innerHTML = '<p class="text-muted">Upload more clothes to get insights!</p>';
+        }
+
+        // Type Chart
+        renderBarChart('typeChart', s.by_type || {}, {
+            top:'👕', bottom:'👖', dress:'👗', shoes:'👟', outerwear:'🧥', accessory:'💍'
+        });
+
+        // Occasion Chart
+        renderBarChart('occasionChart', s.by_occasion || {}, {
+            casual:'☕', office:'💼', party:'🎉', wedding:'💒', date:'❤️', outdoor:'🏕️', formal:'🎩'
+        });
+
+        // Color Palette
+        const palette = document.getElementById('colorPalette');
+        const colors = s.color_palette || Object.keys(s.by_color || {}).slice(0, 8);
+        if (colors.length > 0) {
+            palette.innerHTML = colors.map(c => `
+                <div class="palette-swatch">
+                    <div class="palette-color" style="background:${colorHexMap[c.toLowerCase()] || '#888'}" title="${c}"></div>
+                    <span class="palette-name">${c}</span>
+                    <span style="font-size:0.65rem; color:var(--text-muted)">${s.by_color?.[c] || ''}</span>
+                </div>
+            `).join('');
+        } else {
+            palette.innerHTML = '<p class="text-muted">No colors detected yet</p>';
+        }
+
+        // Formality
+        const formalityContainer = document.getElementById('formalityMeter');
+        const formality = s.by_formality || {};
+        const fLabels = ['Very Casual','Casual','Smart Casual','Formal','Very Formal'];
+        const fColors = ['#4ecdc4','#00d68f','#7c5cfc','#ff6b9d','#ffd700'];
+        const maxF = Math.max(...Object.values(formality), 1);
+
+        formalityContainer.innerHTML = `
+            <div class="formality-meter">
+                ${[1,2,3,4,5].map((level, i) => {
+                    const count = formality[level] || 0;
+                    const opacity = 0.2 + (count / maxF) * 0.8;
+                    return `
+                        <div class="formality-segment" 
+                            style="background:${fColors[i]}; opacity:${opacity}"
+                            title="${fLabels[i]}: ${count} items">
+                            ${count}
+                        </div>`;
+                }).join('')}
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-top:6px">
+                <span style="font-size:0.65rem; color:var(--text-muted)">Casual</span>
+                <span style="font-size:0.65rem; color:var(--text-muted)">Formal</span>
+            </div>`;
+
+        // Most Worn
+        const mostWorn = document.getElementById('mostWornGrid');
+        if (s.most_worn && s.most_worn.length > 0) {
+            mostWorn.innerHTML = s.most_worn.map(item => `
+                <div class="worn-item">
+                    <img src="${item.image_url}" alt="${item.type}" loading="lazy">
+                    <span class="worn-badge" style="background:var(--success); color:white">${item.wear_count}×</span>
+                </div>
+            `).join('');
+        }
+
+        // Never Worn
+        const neverWorn = document.getElementById('neverWornGrid');
+        if (s.never_worn && s.never_worn.length > 0) {
+            neverWorn.innerHTML = s.never_worn.slice(0, 8).map(item => `
+                <div class="worn-item">
+                    <img src="${item.image_url}" alt="${item.type}" loading="lazy">
+                    <span class="worn-badge" style="background:var(--warning); color:black">New</span>
+                </div>
+            `).join('');
+        } else {
+            neverWorn.innerHTML = '<p class="text-muted" style="grid-column:1/-1">All items have been worn! 👏</p>';
+        }
+    }
+
+    function renderBarChart(containerId, data, icons) {
+        const container = document.getElementById(containerId);
+        const entries = Object.entries(data).sort((a,b) => b[1] - a[1]);
+        const max = Math.max(...entries.map(e => e[1]), 1);
+
+        if (entries.length === 0) {
+            container.innerHTML = '<p class="text-muted">No data yet</p>';
+            return;
+        }
+
+        container.innerHTML = entries.map(([key, count], i) => {
+            const pct = (count / max) * 100;
+            const icon = icons[key] || '';
+            const color = barColors[i % barColors.length];
+
+            return `
+                <div class="bar-row">
+                    <span class="bar-label">${icon} ${key}</span>
+                    <div class="bar-track">
+                        <div class="bar-fill" style="width:${pct}%; background:${color}">${count}</div>
+                    </div>
+                    <span class="bar-count">${count}</span>
+                </div>`;
+        }).join('');
+    }
+
+    initStats();
+</script>
+<button class="btn btn-sm btn-secondary" style=" position: fixed;
+    bottom: 0;
+    right: 0;
+    text-align: center;
+    z-index: 1000;" onclick="toggleTheme()">
+    🌓
+</button></body>
+</html>

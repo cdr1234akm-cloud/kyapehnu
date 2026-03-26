@@ -1,0 +1,2540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kya Pehnu?</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 72'><path d='M32 4 C32 4 32 8 32 9' stroke='%23D4A017' stroke-width='1.5' stroke-linecap='round'/><path d='M26 9 Q32 6 38 9' stroke='%23D4A017' stroke-width='1.5' stroke-linecap='round' fill='none'/><path d='M25 10 C23 12 21 16 20 20 L24 22 L32 20 L40 22 L44 20 C43 16 41 12 39 10 Q35 8 32 9 Q29 8 25 10Z' fill='%23D4A017' opacity='0.9'/><path d='M24 22 C24 24 26 26 28 27 L32 28 L36 27 C38 26 40 24 40 22' fill='%23D4A017' opacity='0.85'/><path d='M28 27 C24 32 14 50 12 66 L52 66 C50 50 40 32 36 27 C36 27 34 28 32 28 C30 28 28 27 28 27Z' fill='%23D4A017' opacity='0.75'/></svg>">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://js.puter.com/v2/"></script>
+    <style>
+    /* ─── Premium Outfit Preview (No API needed) ─── */
+    
+    .outfit-preview-premium {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 24px;
+        width: 100%;
+        position: relative;
+    }
+
+    /* Mannequin/silhouette background */
+    .outfit-preview-premium::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 220px;
+        height: 90%;
+        background: linear-gradient(180deg, 
+            rgba(124, 92, 252, 0.03) 0%,
+            rgba(124, 92, 252, 0.06) 50%,
+            rgba(124, 92, 252, 0.03) 100%
+        );
+        border-radius: 110px 110px 60px 60px;
+        z-index: 0;
+    }
+
+    /* Outfit pieces arranged like on a body */
+    .body-layout {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .body-slot {
+        position: relative;
+        transition: all 0.3s var(--ease-spring);
+    }
+
+    .body-slot:hover {
+        transform: scale(1.08);
+        z-index: 10;
+    }
+
+    .body-slot img {
+        border-radius: var(--radius-lg);
+        object-fit: cover;
+        box-shadow: var(--shadow-md);
+        border: 2px solid var(--border-color);
+        transition: all 0.3s;
+    }
+
+    .body-slot:hover img {
+        border-color: var(--accent-primary);
+        box-shadow: var(--shadow-glow);
+    }
+
+    /* Different sizes for different slots */
+    .slot-outerwear img {
+        width: 180px;
+        height: 140px;
+        margin-bottom: -20px;
+        z-index: 3;
+        position: relative;
+    }
+
+    .slot-top img {
+        width: 190px;
+        height: 200px;
+        z-index: 2;
+        position: relative;
+    }
+
+    .slot-dress img {
+        width: 190px;
+        height: 320px;
+        z-index: 2;
+    }
+
+    .slot-bottom img {
+        width: 170px;
+        height: 220px;
+        margin-top: -10px;
+        z-index: 1;
+        position: relative;
+    }
+
+    .slot-shoes img {
+        width: 140px;
+        height: 100px;
+        margin-top: -5px;
+        z-index: 0;
+    }
+
+    .slot-accessory img {
+        width: 80px;
+        height: 80px;
+        position: absolute;
+        right: -50px;
+        top: 10px;
+        border-radius: 50%;
+        z-index: 5;
+    }
+
+    /* Slot label */
+    .slot-label {
+        position: absolute;
+        bottom: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 4px 12px;
+        background: rgba(0, 0, 0, 0.75);
+        backdrop-filter: blur(8px);
+        border-radius: var(--radius-full);
+        font-size: 0.7rem;
+        font-weight: 600;
+        white-space: nowrap;
+        color: white;
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+
+    .body-slot:hover .slot-label {
+        opacity: 1;
+    }
+
+    /* Remove button on hover */
+    .slot-remove {
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: var(--danger);
+        border: 2px solid var(--bg-card);
+        color: white;
+        font-size: 0.65rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        opacity: 0;
+        transition: opacity 0.2s;
+        z-index: 20;
+    }
+
+    .body-slot:hover .slot-remove {
+        opacity: 1;
+    }
+
+    /* Outfit score overlay */
+    .outfit-match-score {
+        margin-top: 20px;
+        padding: 12px 24px;
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-full);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.85rem;
+        animation: fadeUp 0.5s var(--ease-out) 0.3s both;
+    }
+
+    .match-score-bar {
+        width: 100px;
+        height: 6px;
+        background: var(--bg-input);
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    .match-score-fill {
+        height: 100%;
+        border-radius: 3px;
+        background: linear-gradient(90deg, var(--accent-primary), var(--success));
+        transition: width 1s var(--ease-out);
+    }
+
+    /* Color palette display */
+    .outfit-colors {
+        display: flex;
+        gap: 6px;
+        margin-top: 12px;
+        animation: fadeUp 0.5s var(--ease-out) 0.4s both;
+    }
+
+    .outfit-color-swatch {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        border: 2px solid var(--bg-card);
+        box-shadow: 0 0 0 1px var(--border-color);
+        transition: transform 0.2s var(--ease-spring);
+    }
+
+    .outfit-color-swatch:hover {
+        transform: scale(1.2);
+    }
+
+    /* Empty slot indicator */
+    .empty-slot {
+        width: 170px;
+        height: 100px;
+        border: 2px dashed var(--border-color);
+        border-radius: var(--radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-muted);
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .empty-slot:hover {
+        border-color: var(--accent-primary);
+        color: var(--accent-primary);
+    }
+        /* ─── Try-On Specific Styles ─── */
+        .tryon-page {
+            padding-top: 80px;
+            min-height: 100vh;
+        }
+
+        .tryon-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            padding: 20px 0 60px;
+        }
+
+        @media (max-width: 900px) {
+            .tryon-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Model / Preview Area */
+        .model-area {
+            position: relative;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            min-height: 550px;
+        }
+
+        .model-silhouette {
+            width: 100%;
+            height: 100%;
+            min-height: 550px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: linear-gradient(180deg, 
+                rgba(124, 92, 252, 0.03) 0%, 
+                rgba(255, 107, 157, 0.03) 100%
+            );
+        }
+
+        .model-placeholder {
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        .model-placeholder .silhouette-icon {
+            font-size: 8rem;
+            opacity: 0.3;
+            line-height: 1;
+        }
+
+        .outfit-on-model {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            padding: 24px;
+            width: 100%;
+        }
+
+        .outfit-piece-on-model {
+            width: 200px;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            border: 2px solid var(--border-color);
+            animation: fadeUp 0.5s var(--ease-out) backwards;
+            transition: all var(--duration-normal);
+            position: relative;
+            background: var(--bg-card);
+        }
+
+        .outfit-piece-on-model:hover {
+            transform: scale(1.05);
+            border-color: var(--accent-primary);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .outfit-piece-on-model img {
+            width: 100%;
+            aspect-ratio: 3/4;
+            object-fit: cover;
+        }
+
+        .piece-label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 8px 12px;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: capitalize;
+            color: white;
+        }
+
+        .piece-order-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--accent-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            box-shadow: var(--shadow-md);
+        }
+
+        .piece-remove-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: rgba(255, 71, 87, 0.9);
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            opacity: 0;
+            transition: opacity var(--duration-fast);
+        }
+
+        .outfit-piece-on-model:hover .piece-remove-btn {
+            opacity: 1;
+        }
+
+        /* Render Status */
+        .render-status {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            z-index: 10;
+        }
+
+        /* Occasion Badge */
+        .occasion-badge {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            z-index: 10;
+        }
+
+        /* Controls Panel */
+        .controls-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .control-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+        }
+
+        .control-section h3 {
+            font-family: var(--font-body);
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .control-section.collapsed .garment-selector {
+            display: none;
+        }
+
+        .section-toggle {
+            margin-left: auto;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        /* Garment Selector */
+        .garment-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
+            gap: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .garment-selector::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .garment-selector::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 2px;
+        }
+
+        .garment-select-item {
+            position: relative;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            border: 2px solid var(--border-color);
+            cursor: pointer;
+            transition: all var(--duration-fast) var(--ease-spring);
+        }
+
+        .garment-select-item:hover {
+            border-color: var(--accent-primary);
+            transform: scale(1.05);
+        }
+
+        .garment-select-item.selected {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 2px var(--accent-primary-glow);
+        }
+
+        .garment-select-item img {
+            width: 100%;
+            aspect-ratio: 3/4;
+            object-fit: cover;
+        }
+
+        .garment-select-item .select-check {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--accent-primary);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            color: white;
+        }
+
+        .garment-select-item.selected .select-check {
+            display: flex;
+        }
+
+        .garment-type-label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 3px 4px;
+            background: rgba(0,0,0,0.7);
+            font-size: 0.55rem;
+            text-align: center;
+            text-transform: capitalize;
+            color: white;
+        }
+
+        /* Model Selection */
+        .default-models {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .default-model-option {
+            text-align: center;
+            cursor: pointer;
+            padding: 12px;
+            border-radius: var(--radius-md);
+            border: 2px solid var(--border-color);
+            transition: all var(--duration-fast);
+            flex: 1;
+            min-width: 80px;
+        }
+
+        .default-model-option:hover {
+            border-color: var(--accent-primary);
+        }
+
+        .default-model-option.selected {
+            border-color: var(--accent-primary);
+            background: var(--accent-primary-glow);
+        }
+
+        .default-model-option .model-icon {
+            font-size: 2rem;
+            margin-bottom: 4px;
+        }
+
+        .default-model-option .model-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* Outfit Info Card */
+        .outfit-info-card {
+            padding: 16px;
+            background: rgba(124, 92, 252, 0.08);
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(124, 92, 252, 0.2);
+        }
+
+        .outfit-info-card h4 {
+            font-family: var(--font-body);
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            color: var(--accent-primary-hover);
+        }
+
+        .outfit-info-card p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .outfit-info-card .styling-tip {
+            margin-top: 12px;
+            padding: 10px;
+            background: rgba(0,0,0,0.2);
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+        }
+
+        /* Complete The Look */
+        .suggestion-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--bg-card-hover);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all var(--duration-fast);
+        }
+
+        .suggestion-card:hover {
+            border-color: var(--accent-primary);
+            transform: translateX(4px);
+        }
+
+        .suggestion-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-sm);
+            background: var(--bg-input);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
+        .suggestion-info {
+            flex: 1;
+        }
+
+        .suggestion-info h4 {
+            font-family: var(--font-body);
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .suggestion-info p {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .suggestion-price {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--success);
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .quick-action-btn {
+            padding: 8px 16px;
+            background: var(--bg-card-hover);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-full);
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all var(--duration-fast);
+            font-family: var(--font-body);
+        }
+
+        .quick-action-btn:hover {
+            border-color: var(--accent-primary);
+            background: var(--accent-primary-glow);
+        }
+
+        /* Empty garment notice */
+        .empty-type-notice {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-align: center;
+            padding: 16px;
+            grid-column: 1 / -1;
+        }
+
+        /* Affiliate Links Styles */
+        .affiliate-link-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--bg-card-hover);
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-md);
+            transition: all var(--duration-fast);
+        }
+
+        .affiliate-link-card:hover {
+            border-color: var(--accent-primary);
+            background: var(--accent-primary-glow);
+            transform: translateX(4px);
+        }
+
+        .affiliate-icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .affiliate-info {
+            flex: 1;
+        }
+
+        .affiliate-info h4 {
+            color: var(--accent-primary);
+        }
+
+        /* Product Visualization Styles */
+        .product-visualization-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+        }
+
+        .product-card {
+            position: relative;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            transition: all var(--duration-normal);
+            cursor: pointer;
+        }
+
+        .product-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--accent-primary);
+        }
+
+        .product-image {
+            width: 100%;
+            aspect-ratio: 3/4;
+            object-fit: cover;
+            background: var(--bg-input);
+        }
+
+        .product-info {
+            padding: 8px;
+        }
+
+        .product-name {
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 2px;
+            color: var(--text-primary);
+            line-height: 1.2;
+        }
+
+        .product-price {
+            font-size: 0.7rem;
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .product-retailer {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 2px 6px;
+            border-radius: var(--radius-sm);
+            font-size: 0.6rem;
+            font-weight: 600;
+        }
+
+        .product-category-label {
+            position: absolute;
+            bottom: 6px;
+            left: 6px;
+            background: var(--accent-primary);
+            color: var(--bg-primary);
+            padding: 2px 6px;
+            border-radius: var(--radius-sm);
+            font-size: 0.6rem;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+
+        /* AI Virtual Try-On Styles */
+        .ai-tryon-result {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            right: 16px;
+            bottom: 16px;
+            background: var(--bg-card);
+            border: 2px solid var(--accent-primary);
+            border-radius: var(--radius-xl);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            animation: fadeUp 0.5s var(--ease-out);
+        }
+
+        .ai-result-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ai-result-header h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--accent-primary);
+            margin: 0;
+        }
+
+        .ai-status .badge {
+            font-size: 0.7rem;
+        }
+
+        .ai-result-image {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: var(--bg-input);
+        }
+
+        .ai-result-image img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: var(--radius-lg);
+        }
+
+        .ai-result-image .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid var(--border-color);
+            border-top: 4px solid var(--accent-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .ai-result-actions {
+            padding: 16px 20px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .ai-result-actions .btn {
+            flex: 1;
+            max-width: 140px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+    <a href="index.html" class="navbar-brand">
+        <svg width="24" height="28" viewBox="0 0 64 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M32 4 C32 4 32 8 32 9" stroke="var(--accent-primary)" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M26 9 Q32 6 38 9" stroke="var(--accent-primary)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+            <path d="M25 10 C23 12 21 16 20 20 L24 22 L32 20 L40 22 L44 20 C43 16 41 12 39 10 Q35 8 32 9 Q29 8 25 10Z" fill="var(--accent-primary)" opacity="0.9"/>
+            <path d="M24 22 C24 24 26 26 28 27 L32 28 L36 27 C38 26 40 24 40 22" fill="var(--accent-primary)" opacity="0.85"/>
+            <path d="M28 27 C24 32 14 50 12 66 L52 66 C50 50 40 32 36 27 C36 27 34 28 32 28 C30 28 28 27 28 27Z" fill="var(--accent-primary)" opacity="0.75"/>
+        </svg>
+        <span style="font-family: var(--font-display); font-weight: 500;">Kya Pehnu?</span>
+    </a>
+    <div class="navbar-links">
+        <a href="wardrobe.html" class="nav-link">Wardrobe</a>
+        <a href="occasion.html" class="nav-link">Occasions</a>
+        <a href="tryon.html" class="nav-link">Try-On</a>
+        <a href="favorites.html" class="nav-link">⭐</a>
+        <a href="history.html" class="nav-link">📅</a>
+        <a href="stats.html" class="nav-link">📊</a>
+        <a href="profile.html" class="nav-link">👤</a>
+        <div class="nav-avatar" id="navAvatar" onclick="window.location='profile.html'">U</div>
+    </div>
+</nav>
+
+<div class="tryon-page">
+    <div class="container">
+        <div class="page-header">
+            <div>
+                <h1 style="font-size:1.8rem">
+                    <span class="text-gradient">Virtual Try-On</span>
+                </h1>
+                <p class="text-muted" id="pageSubtitle">Select garments to preview your outfit</p>
+            </div>
+            <div class="quick-actions">
+                <button class="quick-action-btn" onclick="clearSelection()">🗑️ Clear All</button>
+                <button class="quick-action-btn" onclick="window.location='occasion.html'">🎯 Get AI Suggestions</button>
+            </div>
+        </div>
+
+        <div class="tryon-container">
+
+            <!-- LEFT: Model / Preview Area -->
+            <div class="model-area" id="modelArea">
+                <div class="occasion-badge" id="occasionBadge" style="display:none">
+                    <span class="badge badge-primary" id="occasionText">Casual</span>
+                </div>
+                
+                <div class="render-status">
+                    <span class="badge badge-info" id="renderBadge">Preview Mode</span>
+                </div>
+
+                <!-- Empty State -->
+                <div class="model-silhouette" id="emptyState">
+                    <div class="model-placeholder">
+                        <div class="silhouette-icon">👤</div>
+                        <p style="margin-top:16px; font-size:1.1rem">Select garments to preview</p>
+                        <p style="font-size:0.85rem; margin-top:4px; max-width:250px">
+                            Pick items from the right panel, or 
+                            <a href="occasion.html" style="color:var(--accent-primary)">get AI suggestions</a>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Outfit Preview -->
+                <div class="outfit-on-model" id="outfitPreview" style="display:none">
+                    <!-- Filled by JS -->
+                </div>
+
+                <!-- AI Virtual Try-On Result -->
+                <div class="ai-tryon-result" id="aiTryonResult" style="display:none">
+                    <div class="ai-result-header">
+                        <h3>🤖 AI Virtual Try-On</h3>
+                        <div class="ai-status" id="aiStatus">
+                            <span class="badge badge-info">Generating...</span>
+                        </div>
+                    </div>
+                    <div class="ai-result-image" id="aiResultImage">
+                        <!-- AI generated image will appear here -->
+                    </div>
+                    <div class="ai-result-actions" id="aiResultActions" style="display:none">
+                        <button class="btn btn-primary" onclick="regenerateTryon()">
+                            🔄 Regenerate
+                        </button>
+                        <button class="btn btn-secondary" onclick="downloadTryon()">
+                            📥 Download
+                        </button>
+                        <button class="btn btn-secondary" onclick="shareTryon()">
+                            📤 Share
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT: Controls -->
+            <div class="controls-panel">
+
+                <!-- Outfit Info (shown when outfit is loaded from suggestions) -->
+                <div class="control-section" id="outfitInfoSection" style="display:none">
+                    <h3>✨ AI Recommended Outfit</h3>
+                    <div class="outfit-info-card">
+                        <h4 id="outfitName">Office Ready Look</h4>
+                        <p id="outfitDescription">AI selected these pieces based on color harmony and occasion</p>
+                        <div class="styling-tip" id="stylingTipContainer" style="display:none">
+                            <span>💡</span>
+                            <span id="stylingTipText"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Model Selection (Updated) -->
+                <div class="control-section">
+                    <h3>👤 Model</h3>
+                    <!-- Current Model Display -->
+                    <div id="currentModelDisplay" style="
+                        display:flex; align-items:center; gap:12px;
+                        padding:12px; background:var(--bg-card-hover);
+                        border-radius:var(--radius-md); margin-bottom:16px">
+                        <img id="currentModelThumb" src="" alt="Model"
+                            style="width:60px; height:80px; border-radius:var(--radius-sm);
+                            object-fit:cover; border:2px solid var(--border-color)">
+                        <div>
+                            <p id="currentModelLabel" style="font-size:0.85rem; font-weight:600">Loading...</p>
+                            <p id="currentModelSource" class="text-muted" style="font-size:0.75rem">Default model</p>
+                        </div>
+                    </div>
+
+                    <!-- Upload Your Photo -->
+                    <div style="
+                        border:2px dashed var(--border-color);
+                        border-radius:var(--radius-md);
+                        padding:16px; text-align:center;
+                        cursor:pointer; margin-bottom:12px;
+                        transition: all 0.2s"
+                        onclick="document.getElementById('bodyImageUpload').click()"
+                        onmouseover="this.style.borderColor='var(--accent-primary)'"
+                        onmouseout="this.style.borderColor='var(--border-color)'">
+                        <span style="font-size:1.5rem">📸</span>
+                        <p style="font-size:0.85rem; font-weight:500; margin-top:4px">Upload your full body photo</p>
+                        <p class="text-muted" style="font-size:0.75rem">Optional — AI will verify it's suitable</p>
+                    </div>
+                    <input type="file" id="bodyImageUpload" accept="image/*" hidden>
+
+                    <!-- Upload Status -->
+                    <div id="uploadStatus" style="display:none; padding:12px;
+                        border-radius:var(--radius-md); margin-bottom:12px; font-size:0.8rem">
+                    </div>
+
+                    <!-- Default Model Options -->
+                    <p class="text-muted" style="font-size:0.75rem; margin-bottom:8px">Or choose a default model:</p>
+                    <div class="default-models" id="modelOptions">
+                        <div class="default-model-option selected" data-gender="female" onclick="useDefaultModel('female')">
+                            <div class="model-icon">👩</div>
+                            <div class="model-label">Female</div>
+                        </div>
+                        <div class="default-model-option" data-gender="male" onclick="useDefaultModel('male')">
+                            <div class="model-icon">👨</div>
+                            <div class="model-label">Male</div>
+                        </div>
+                        <div class="default-model-option" data-gender="other" onclick="useDefaultModel('other')">
+                            <div class="model-icon">🧑</div>
+                            <div class="model-label">Other</div>
+                        </div>
+                    </div>
+
+                    <!-- Remove Custom Photo Button -->
+                    <button id="removePhotoBtn" class="btn btn-sm btn-secondary btn-block"
+                        style="display:none; margin-top:12px"
+                        onclick="removeCustomPhoto()">
+                        🗑️ Remove my photo — use default
+                    </button>
+                </div>
+
+                <!-- Garment Selection by Type -->
+                <div class="control-section">
+                    <h3>
+                        👕 Tops & Outerwear
+                        <button class="section-toggle" onclick="toggleSection(this)">−</button>
+                    </h3>
+                    <div class="garment-selector" id="topsSelector">
+                        <p class="empty-type-notice">Loading...</p>
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h3>
+                        👖 Bottoms
+                        <button class="section-toggle" onclick="toggleSection(this)">−</button>
+                    </h3>
+                    <div class="garment-selector" id="bottomsSelector">
+                        <p class="empty-type-notice">Loading...</p>
+                    </div>
+                </div>
+
+                <div class="control-section" id="dressSection" style="display:none">
+                    <h3>
+                        👗 Dresses
+                        <button class="section-toggle" onclick="toggleSection(this)">−</button>
+                    </h3>
+                    <div class="garment-selector" id="dressesSelector"></div>
+                </div>
+
+                <div class="control-section" id="shoesSection" style="display:none">
+                    <h3>
+                        👟 Shoes
+                        <button class="section-toggle" onclick="toggleSection(this)">−</button>
+                    </h3>
+                    <div class="garment-selector" id="shoesSelector"></div>
+                </div>
+
+                <div class="control-section" id="accessorySection" style="display:none">
+                    <h3>
+                        💍 Accessories
+                        <button class="section-toggle" onclick="toggleSection(this)">−</button>
+                    </h3>
+                    <div class="garment-selector" id="accessoriesSelector"></div>
+                </div>
+
+                <!-- Complete The Look -->
+                <div class="control-section" id="suggestionsSection" style="display:none">
+                    <h3>🛍️ Complete The Look</h3>
+                    <div id="suggestionsContainer" style="display:flex; flex-direction:column; gap:8px">
+                        <!-- Filled by JS -->
+                    </div>
+                </div>
+
+                <!-- Product Visualization -->
+                <div class="control-section" id="productVisualizationSection" style="display:none">
+                    <h3>👀 Similar Products</h3>
+                    <div id="productVisualizationContainer" style="display:flex; flex-direction:column; gap:16px">
+                        <!-- Product images will be filled by JS -->
+                    </div>
+                    <div style="padding-top:12px; border-top:1px solid var(--border-color); margin-top:12px; font-size:0.75rem; color:var(--text-muted)">
+                        💡 Click on any product to shop similar items online
+                    </div>
+                </div>
+
+                <!-- Shop Outfit Online (Affiliate Links) -->
+                <div class="control-section" id="affiliateSection" style="display:none">
+                    <h3>🛒 Shop Now</h3>
+                    <div id="affiliateLinksContainer" style="display:flex; flex-direction:column; gap:12px">
+                        <!-- Filled by JS with affiliate links -->
+                    </div>
+                    <div style="padding-top:12px; border-top:1px solid var(--border-color); margin-top:12px; font-size:0.75rem; color:var(--text-muted)">
+                        💡 We earn a small commission from affiliate links, helping us improve the app!
+                    </div>
+                </div>
+
+                <!-- Save / Actions -->
+                <div class="control-section" id="actionsSection" style="display:none">
+                    <div style="display:flex; gap:8px">
+                        <button class="btn btn-primary" style="flex:1" onclick="saveCurrentOutfit()">
+                            ❤️ Save This Look
+                        </button>
+                        <button class="btn btn-secondary" onclick="shareOutfit()">
+                            📤 Share
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="js/app.js"></script>
+<script>
+    // ━━━ Try-On Page State ━━━
+    const tryonState = {
+        selectedGarments: {},  // {type: garmentObj}
+        modelType: 'female',
+        customModelImage: null,
+        allGarments: [],
+        currentOccasion: null,
+        outfitMeta: null,  // Store AI outfit info (name, reasoning, tip)
+    };
+
+    // ━━━ Initialize Page ━━━
+    async function initTryon() {
+        if (!requireAuth()) return;
+        updateNavbar();
+
+        try {
+            const data = await api('/wardrobe');
+            tryonState.allGarments = data.garments;
+            renderGarmentSelectors();
+
+            
+            // ━━━ Load current model ━━━
+            await loadCurrentModel();
+            
+            // ━━━ Load pre-selected garments from Outfit Suggestions ━━━
+            const preSelectedIds = localStorage.getItem('styleai_tryon_garments');
+            const preSelectedOccasion = localStorage.getItem('styleai_tryon_occasion');
+            const outfitMeta = localStorage.getItem('styleai_tryon_meta');
+            
+            if (preSelectedIds) {
+                console.log('Loading pre-selected outfit...');
+                const garmentIds = JSON.parse(preSelectedIds);
+                
+                // Parse outfit metadata if available
+                if (outfitMeta) {
+                    tryonState.outfitMeta = JSON.parse(outfitMeta);
+                }
+                
+                // Select each garment
+                garmentIds.forEach(gid => {
+                    const garment = tryonState.allGarments.find(g => g.id === gid);
+                    if (garment) {
+                        const type = garment.metadata.type;
+                        tryonState.selectedGarments[type] = garment;
+                        
+                        // Mark as selected in UI
+                        const element = document.querySelector(`.garment-select-item[data-id="${gid}"]`);
+                        if (element) {
+                            element.classList.add('selected');
+                        }
+                    }
+                });
+                
+                // Set occasion
+                if (preSelectedOccasion) {
+                    tryonState.currentOccasion = preSelectedOccasion;
+                    document.getElementById('occasionBadge').style.display = 'block';
+                    document.getElementById('occasionText').textContent = 
+                        preSelectedOccasion.charAt(0).toUpperCase() + preSelectedOccasion.slice(1);
+                    document.getElementById('pageSubtitle').textContent = 
+                        `AI-recommended outfit for ${preSelectedOccasion}`;
+                }
+                
+                // Update preview
+                updatePreview();
+                
+                // Show notification
+                showToast(`Loaded ${garmentIds.length} pieces for ${preSelectedOccasion || 'try-on'}! 👗`, 'success');
+                
+                // Clear localStorage (one-time use)
+                localStorage.removeItem('styleai_tryon_garments');
+                localStorage.removeItem('styleai_tryon_occasion');
+                localStorage.removeItem('styleai_tryon_meta');
+            }
+            
+        } catch (err) {
+            showToast(err.message, 'error');
+        }
+
+        // Model upload handler
+        document.getElementById('bodyImageUpload').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                tryonState.customModelImage = file;
+                tryonState.modelType = 'custom';
+                showToast('Custom model photo selected! 📸', 'success');
+                document.querySelectorAll('.default-model-option').forEach(o => o.classList.remove('selected'));
+            }
+        });
+    }
+
+    // ━━━ Render Garment Selectors ━━━
+    function renderGarmentSelectors() {
+        const garments = tryonState.allGarments;
+
+        const groups = {
+            tops: garments.filter(g => g.metadata.type === 'top' || g.metadata.type === 'outerwear'),
+            bottoms: garments.filter(g => g.metadata.type === 'bottom'),
+            dresses: garments.filter(g => g.metadata.type === 'dress'),
+            shoes: garments.filter(g => g.metadata.type === 'shoes'),
+            accessories: garments.filter(g => g.metadata.type === 'accessory'),
+        };
+
+        renderSelector('topsSelector', groups.tops, 'top');
+        renderSelector('bottomsSelector', groups.bottoms, 'bottom');
+
+        if (groups.dresses.length > 0) {
+            document.getElementById('dressSection').style.display = 'block';
+            renderSelector('dressesSelector', groups.dresses, 'dress');
+        }
+        if (groups.shoes.length > 0) {
+            document.getElementById('shoesSection').style.display = 'block';
+            renderSelector('shoesSelector', groups.shoes, 'shoes');
+        }
+        if (groups.accessories.length > 0) {
+            document.getElementById('accessorySection').style.display = 'block';
+            renderSelector('accessoriesSelector', groups.accessories, 'accessory');
+        }
+    }
+
+    function renderSelector(containerId, garments, type) {
+        const container = document.getElementById(containerId);
+
+        if (garments.length === 0) {
+            container.innerHTML = `
+                <p class="empty-type-notice">
+                    No ${type}s yet — <a href="wardrobe.html" style="color:var(--accent-primary)">upload some</a>
+                </p>`;
+            return;
+        }
+
+        container.innerHTML = garments.map(g => `
+            <div class="garment-select-item" 
+                 data-id="${g.id}" 
+                 data-type="${g.metadata.type}"
+                 onclick="toggleGarment(this, '${g.id}', '${g.metadata.type}')"
+                 title="${g.metadata.description || g.metadata.subtype || type}">
+                <img src="${g.image_url}" alt="${g.metadata.subtype || type}" loading="lazy">
+                <div class="select-check">✓</div>
+                <div class="garment-type-label">${g.metadata.subtype || type}</div>
+            </div>
+        `).join('');
+    }
+
+    // ━━━ Toggle Section Collapse ━━━
+    function toggleSection(btn) {
+        const section = btn.closest('.control-section');
+        section.classList.toggle('collapsed');
+        btn.textContent = section.classList.contains('collapsed') ? '+' : '−';
+    }
+
+    // ━━━ Toggle Garment Selection ━━━
+    function toggleGarment(element, garmentId, type) {
+        const garment = tryonState.allGarments.find(g => g.id === garmentId);
+        if (!garment) return;
+
+        // Deselect other items of same type
+        element.parentElement.querySelectorAll('.garment-select-item').forEach(item => {
+            item.classList.remove('selected');
+        });
+
+        // Check if already selected (toggle off)
+        if (tryonState.selectedGarments[type] && tryonState.selectedGarments[type].id === garmentId) {
+            delete tryonState.selectedGarments[type];
+            // Clear outfit meta since user is changing
+            tryonState.outfitMeta = null;
+        } else {
+            // Select this one
+            element.classList.add('selected');
+            tryonState.selectedGarments[type] = garment;
+            // Clear outfit meta since user is changing
+            tryonState.outfitMeta = null;
+        }
+
+        // If dress selected, clear top and bottom
+        if (type === 'dress') {
+            delete tryonState.selectedGarments['top'];
+            delete tryonState.selectedGarments['outerwear'];
+            delete tryonState.selectedGarments['bottom'];
+            document.querySelectorAll('#topsSelector .selected, #bottomsSelector .selected')
+                .forEach(el => el.classList.remove('selected'));
+        }
+        // If top or bottom selected, clear dress
+        if (type === 'top' || type === 'bottom' || type === 'outerwear') {
+            delete tryonState.selectedGarments['dress'];
+            document.querySelectorAll('#dressesSelector .selected')
+                .forEach(el => el.classList.remove('selected'));
+        }
+
+        updatePreview();
+    }
+
+    // ━━━ Remove Garment from Preview ━━━
+    function removeFromOutfit(type) {
+        delete tryonState.selectedGarments[type];
+        tryonState.outfitMeta = null;
+        
+        // Deselect in UI
+        document.querySelectorAll(`.garment-select-item.selected`).forEach(el => {
+            const gid = el.dataset.id;
+            const g = tryonState.allGarments.find(g => g.id === gid);
+            if (g && g.metadata.type === type) {
+                el.classList.remove('selected');
+            }
+        });
+        
+        updatePreview();
+    }
+
+    // ━━━ Clear All Selection ━━━
+    function clearSelection() {
+        tryonState.selectedGarments = {};
+        tryonState.outfitMeta = null;
+        tryonState.currentOccasion = null;
+        
+        document.querySelectorAll('.garment-select-item.selected').forEach(el => {
+            el.classList.remove('selected');
+        });
+        
+        document.getElementById('occasionBadge').style.display = 'none';
+        document.getElementById('pageSubtitle').textContent = 'Select garments to preview your outfit';
+        
+        updatePreview();
+        showToast('Selection cleared', 'info');
+    }
+
+function updatePreview() {
+    const selected = tryonState.selectedGarments;
+    const count = Object.keys(selected).length;
+
+    const emptyState = document.getElementById('emptyState');
+    const preview = document.getElementById('outfitPreview');
+    const infoSection = document.getElementById('outfitInfoSection');
+    const suggestionsSection = document.getElementById('suggestionsSection');
+    const actionsSection = document.getElementById('actionsSection');
+
+    if (count === 0) {
+        emptyState.style.display = 'flex';
+        preview.style.display = 'none';
+        infoSection.style.display = 'none';
+        suggestionsSection.style.display = 'none';
+        if (actionsSection) actionsSection.style.display = 'none';
+        return;
+    }
+
+    emptyState.style.display = 'none';
+    preview.style.display = 'flex';
+    if (actionsSection) actionsSection.style.display = 'block';
+
+    // Build body layout
+    const slots = {
+        outerwear: selected.outerwear || null,
+        top: selected.top || null,
+        dress: selected.dress || null,
+        bottom: selected.bottom || null,
+        shoes: selected.shoes || null,
+        accessory: selected.accessory || null,
+    };
+
+    let bodyHTML = '<div class="outfit-preview-premium"><div class="body-layout">';
+
+    // Render in body order
+    const slotOrder = ['outerwear', 'top', 'dress', 'bottom', 'shoes'];
+
+    for (const slotName of slotOrder) {
+        const garment = slots[slotName];
+
+        // Skip top/bottom if dress is selected
+        if (slotName === 'top' && slots.dress) continue;
+        if (slotName === 'bottom' && slots.dress) continue;
+        // Skip dress if top or bottom selected
+        if (slotName === 'dress' && (slots.top || slots.bottom)) continue;
+
+        if (garment) {
+            const meta = garment.metadata;
+            const delay = slotOrder.indexOf(slotName) * 0.1;
+
+            bodyHTML += `
+                <div class="body-slot slot-${slotName}" 
+                     style="animation: fadeUp 0.5s var(--ease-out) ${delay}s both">
+                    <img src="${garment.image_url}" 
+                         alt="${meta.subtype || meta.type}">
+                    <div class="slot-label">${meta.subtype || meta.type}</div>
+                    <div class="slot-remove" onclick="removeFromOutfit('${slotName}')">✕</div>
+                    
+                    ${slotName === 'top' && slots.accessory ? `
+                        <div class="body-slot slot-accessory">
+                            <img src="${slots.accessory.image_url}" 
+                                 alt="${slots.accessory.metadata.subtype || 'accessory'}">
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        } else if (slotName !== 'dress' && slotName !== 'outerwear') {
+            // Show empty slot for missing essential items
+            const labels = {
+                top: '+ Add Top',
+                bottom: '+ Add Bottom',
+                shoes: '+ Add Shoes'
+            };
+            if (labels[slotName]) {
+                bodyHTML += `
+                    <div class="empty-slot" onclick="scrollToSelector('${slotName}')">
+                        ${labels[slotName]}
+                    </div>
+                `;
+            }
+        }
+    }
+
+    bodyHTML += '</div>';
+
+    // Color palette
+    const allColors = Object.values(selected)
+        .map(g => g.metadata.color || [])
+        .flat()
+        .filter(Boolean);
+
+    if (allColors.length > 0) {
+        bodyHTML += '<div class="outfit-colors">';
+        const uniqueColors = [...new Set(allColors)];
+        uniqueColors.forEach(color => {
+            bodyHTML += `
+                <div class="outfit-color-swatch" 
+                     style="background:${getColorHex(color)}" 
+                     title="${color}">
+                </div>
+            `;
+        });
+        bodyHTML += '</div>';
+    }
+
+    // Match score (simple calculation)
+    const score = calculateOutfitScore(selected);
+    bodyHTML += `
+        <div class="outfit-match-score">
+            <span>Match Score:</span>
+            <div class="match-score-bar">
+                <div class="match-score-fill" style="width:${score}%"></div>
+            </div>
+            <span style="font-weight:700; color:${score > 70 ? 'var(--success)' : 'var(--warning)'}">${score}%</span>
+        </div>
+    `;
+
+    bodyHTML += '</div>';
+    preview.innerHTML = bodyHTML;
+
+    // Update render status badge
+    const renderBadge = document.getElementById('renderBadge');
+    const hasTop = selected.top || selected.outerwear || selected.dress;
+    const hasBottom = selected.bottom || selected.dress;
+    const hasShoes = selected.shoes;
+
+    if (hasTop && hasBottom && hasShoes) {
+        renderBadge.textContent = 'AI Try-On Ready';
+        renderBadge.className = 'badge badge-success';
+    } else {
+        renderBadge.textContent = 'Select Complete Outfit';
+        renderBadge.className = 'badge badge-warning';
+    }
+
+    // Update outfit info
+    updateOutfitInfo(selected);
+    updateSuggestions(selected);
+    generateProductVisualization(selected);
+    generateAffiliateLinks(selected);
+
+    // Generate AI virtual try-on if we have complete outfit
+    if (hasTop && hasBottom && hasShoes) {
+        generateVirtualTryon();
+    } else {
+        // Hide AI result if incomplete outfit
+        document.getElementById('aiTryonResult').style.display = 'none';
+    }
+
+    infoSection.style.display = 'block';
+}
+
+
+function scrollToSelector(type) {
+    const selectorMap = {
+        top: 'topsSelector',
+        bottom: 'bottomsSelector',
+        shoes: 'shoesSelector',
+        dress: 'dressesSelector',
+        accessory: 'accessoriesSelector'
+    };
+    const el = document.getElementById(selectorMap[type]);
+    if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        el.parentElement.style.animation = 'none';
+        setTimeout(() => {
+            el.parentElement.style.animation = 'popIn 0.3s var(--ease-spring)';
+        }, 10);
+    }
+}
+
+
+function calculateOutfitScore(selected) {
+    let score = 50; // Base score
+
+    const pieces = Object.values(selected);
+    if (pieces.length === 0) return 0;
+
+    // Has top + bottom or dress = complete outfit
+    const hasTop = selected.top || selected.outerwear;
+    const hasBottom = selected.bottom;
+    const hasDress = selected.dress;
+    const hasShoes = selected.shoes;
+
+    if ((hasTop && hasBottom) || hasDress) score += 20;
+    if (hasShoes) score += 10;
+    if (selected.accessory) score += 5;
+
+    // Color harmony bonus
+    const colors = pieces.map(p => p.metadata.color?.[0] || '').filter(Boolean);
+    const neutrals = ['black', 'white', 'grey', 'gray', 'navy', 'beige', 'cream', 'charcoal'];
+    const neutralCount = colors.filter(c => neutrals.includes(c.toLowerCase())).length;
+
+    if (neutralCount >= colors.length - 1) score += 10; // Mostly neutrals = safe
+    if (colors.length === new Set(colors).size) score += 5; // No color repeats
+
+    return Math.min(score, 98);
+}
+
+
+function updateOutfitInfo(selected) {
+    const pieces = Object.values(selected);
+    const colors = pieces.map(g => g.metadata.color?.[0] || '').filter(Boolean);
+
+    if (tryonState.outfitMeta) {
+        document.getElementById('outfitName').textContent =
+            tryonState.outfitMeta.name || 'AI Recommended Outfit';
+        document.getElementById('outfitDescription').textContent =
+            tryonState.outfitMeta.reasoning || `${pieces.length} pieces • Colors: ${colors.join(', ')}`;
+
+        if (tryonState.outfitMeta.styling_tip) {
+            document.getElementById('stylingTipContainer').style.display = 'flex';
+            document.getElementById('stylingTipText').textContent = tryonState.outfitMeta.styling_tip;
+        }
+    } else {
+        document.getElementById('outfitName').textContent =
+            pieces.map(g => g.metadata.subtype || g.metadata.type).join(' + ');
+        document.getElementById('outfitDescription').textContent =
+            `${pieces.length} pieces • Colors: ${colors.join(', ') || 'Mixed'}`;
+        document.getElementById('stylingTipContainer').style.display = 'none';
+    }
+}
+
+
+// Color hex helper (reuse from app.js or define here)
+function getColorHex(name) {
+    const map = {
+        black: '#1a1a1a', white: '#f5f5f5', navy: '#1a237e', blue: '#2196F3',
+        red: '#e53935', green: '#4CAF50', yellow: '#FFC107', pink: '#E91E63',
+        purple: '#9C27B0', orange: '#FF9800', brown: '#795548', grey: '#9E9E9E',
+        gray: '#9E9E9E', beige: '#D4C5A9', cream: '#FFFDD0', maroon: '#800000',
+        olive: '#808000', teal: '#008080', burgundy: '#800020', tan: '#D2B48C',
+        'sky blue': '#87CEEB', charcoal: '#36454F', coral: '#FF7F50',
+        lavender: '#E6E6FA', gold: '#FFD700', silver: '#C0C0C0',
+    };
+    return map[name?.toLowerCase()] || '#888';
+}
+    // ━━━ Complete The Look Suggestions ━━━
+    function updateSuggestions(selected) {
+        const container = document.getElementById('suggestionsContainer');
+        const section = document.getElementById('suggestionsSection');
+
+        const hasTop = selected.top || selected.outerwear || selected.dress;
+        const hasBottom = selected.bottom || selected.dress;
+        const hasShoes = selected.shoes;
+        const hasAccessory = selected.accessory;
+
+        const suggestions = [];
+
+        if (!hasShoes && tryonState.allGarments.some(g => g.metadata.type === 'shoes')) {
+            suggestions.push({
+                icon: '👟',
+                name: 'Add Shoes',
+                description: 'Complete with matching footwear',
+                type: 'wardrobe'
+            });
+        } else if (!hasShoes) {
+            suggestions.push({
+                icon: '👟',
+                name: 'Get Shoes',
+                description: 'Shop matching footwear',
+                price: '₹1,499',
+                type: 'shop'
+            });
+        }
+
+        if (!hasAccessory && tryonState.allGarments.some(g => g.metadata.type === 'accessory')) {
+            suggestions.push({
+                icon: '⌚',
+                name: 'Add Accessory',
+                description: 'Elevate with accessories',
+                type: 'wardrobe'
+            });
+        }
+
+        if (!hasTop && !selected.dress) {
+            suggestions.push({
+                icon: '👕',
+                name: 'Add a Top',
+                description: 'Select from your wardrobe',
+                type: 'wardrobe'
+            });
+        }
+
+        if (!hasBottom && !selected.dress) {
+            suggestions.push({
+                icon: '👖',
+                name: 'Add Bottoms',
+                description: 'Select from your wardrobe',
+                type: 'wardrobe'
+            });
+        }
+
+        if (suggestions.length === 0) {
+            section.style.display = 'block';
+            container.innerHTML = `
+                <div class="suggestion-card" style="border-color: var(--success); background: rgba(0,214,143,0.05)">
+                    <div class="suggestion-icon">✅</div>
+                    <div class="suggestion-info">
+                        <h4 style="color: var(--success)">Outfit Complete!</h4>
+                        <p>This look has all the essentials</p>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        section.style.display = 'block';
+        container.innerHTML = suggestions.map(s => `
+            <div class="suggestion-card" onclick="${s.type === 'shop' ? 'showToast(\'Shop feature coming soon!\', \'info\')' : ''}">
+                <div class="suggestion-icon">${s.icon}</div>
+                <div class="suggestion-info">
+                    <h4>${s.name}</h4>
+                    <p>${s.description}</p>
+                </div>
+                ${s.price ? `<div class="suggestion-price">${s.price}</div>` : ''}
+            </div>
+        `).join('');
+    }
+
+    // ━━━ Generate Affiliate Links ━━━
+    function generateAffiliateLinks(selected) {
+        const container = document.getElementById('affiliateLinksContainer');
+        const section = document.getElementById('affiliateSection');
+
+        const hasItems = Object.keys(selected).length > 0;
+
+        if (!hasItems) {
+            section.style.display = 'none';
+            return;
+        }
+
+        // Analyze outfit for targeted searches
+        const outfitAnalysis = analyzeOutfitForShopping(selected);
+
+        // Define affiliate link structure with targeted searches
+        const affiliateLinks = [
+            {
+                name: 'Amazon Fashion',
+                icon: '🛍️',
+                baseUrl: 'https://www.amazon.com/s',
+                description: outfitAnalysis.amazonDesc,
+                searchQuery: outfitAnalysis.amazonQuery,
+                affiliate: 'amazon'
+            },
+            {
+                name: 'ASOS',
+                icon: '💫',
+                baseUrl: 'https://www.asos.com/search',
+                description: outfitAnalysis.asosDesc,
+                searchQuery: outfitAnalysis.asosQuery,
+                affiliate: 'asos'
+            },
+            {
+                name: 'Myntra',
+                icon: '👗',
+                baseUrl: 'https://www.myntra.com',
+                description: outfitAnalysis.myntraDesc,
+                searchQuery: outfitAnalysis.myntraQuery,
+                affiliate: 'myntra'
+            },
+            {
+                name: 'Zara',
+                icon: '⭐',
+                baseUrl: 'https://www.zara.com/in/en/search',
+                description: outfitAnalysis.zaraDesc,
+                searchQuery: outfitAnalysis.zaraQuery,
+                affiliate: 'zara'
+            },
+            {
+                name: 'H&M',
+                icon: '🏷️',
+                baseUrl: 'https://www2.hm.com/en_in/search-results.html',
+                description: outfitAnalysis.hmDesc,
+                searchQuery: outfitAnalysis.hmQuery,
+                affiliate: 'hm'
+            }
+        ];
+
+        section.style.display = 'block';
+
+        const linksHTML = affiliateLinks.map(link => {
+            const fullUrl = `${link.baseUrl}?q=${encodeURIComponent(link.searchQuery)}&utm_source=kyapehnu&utm_medium=app&utm_campaign=tryon`;
+            return `
+                <a href="${fullUrl}"
+                   target="_blank" rel="noopener noreferrer"
+                   style="text-decoration:none">
+                    <div class="affiliate-link-card">
+                        <div class="affiliate-icon">${link.icon}</div>
+                        <div class="affiliate-info">
+                            <h4 style="margin:0; font-size:0.9rem; font-weight:600">${link.name}</h4>
+                            <p style="margin:4px 0 0; font-size:0.75rem; color:var(--text-muted)">${link.description}</p>
+                        </div>
+                        <span style="margin-left:auto; color:var(--accent-primary); font-size:1.2rem">→</span>
+                    </div>
+                </a>
+            `;
+        }).join('');
+
+        container.innerHTML = linksHTML;
+    }
+
+    // ━━━ Generate Product Visualization ━━━
+    function generateProductVisualization(selected) {
+        const container = document.getElementById('productVisualizationContainer');
+        const section = document.getElementById('productVisualizationSection');
+
+        const hasItems = Object.keys(selected).length > 0;
+
+        if (!hasItems) {
+            section.style.display = 'none';
+            return;
+        }
+
+        // Get product recommendations based on selected garments
+        const productRecommendations = getProductRecommendations(selected);
+
+        section.style.display = 'block';
+
+        if (productRecommendations.length === 0) {
+            container.innerHTML = `
+                <div style="text-align:center; padding:20px; color:var(--text-muted); font-size:0.85rem">
+                    No similar products found for this combination
+                </div>
+            `;
+            return;
+        }
+
+        // Group products by category for better organization
+        const productsByCategory = {};
+        productRecommendations.forEach(product => {
+            if (!productsByCategory[product.category]) {
+                productsByCategory[product.category] = [];
+            }
+            productsByCategory[product.category].push(product);
+        });
+
+        let html = '';
+        Object.keys(productsByCategory).forEach(category => {
+            const products = productsByCategory[category];
+            html += `
+                <div class="product-category-section">
+                    <h4 style="font-size:0.9rem; font-weight:600; margin-bottom:8px; color:var(--accent-primary); text-transform:capitalize">
+                        ${category} Options
+                    </h4>
+                    <div class="product-visualization-grid">
+                        ${products.map(product => `
+                            <div class="product-card" onclick="openProductLink('${product.affiliateLink}')">
+                                <img src="${product.image}" alt="${product.name}" class="product-image" loading="lazy">
+                                <div class="product-retailer">${product.retailer}</div>
+                                <div class="product-category-label">${product.category}</div>
+                                <div class="product-info">
+                                    <div class="product-name">${product.name}</div>
+                                    <div class="product-price">${product.price}</div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+    }
+
+    // ━━━ Get Product Recommendations ━━━
+    function getProductRecommendations(selected) {
+        const garments = Object.values(selected);
+        const recommendations = [];
+
+        // Product database - in a real app, this would come from an API
+        const productDatabase = {
+            tops: [
+                {
+                    id: 1,
+                    name: 'Cotton Crew Neck T-Shirt',
+                    price: '₹899',
+                    image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=300&h=400&fit=crop',
+                    category: 'tops',
+                    retailer: 'Myntra',
+                    affiliateLink: 'https://www.myntra.com/tshirts?sort=popularity&utm_source=kyapehnu'
+                },
+                {
+                    id: 2,
+                    name: 'Striped Polo Shirt',
+                    price: '₹1,299',
+                    image: 'https://images.unsplash.com/photo-1586790170083-2f9ceadc732d?w=300&h=400&fit=crop',
+                    category: 'tops',
+                    retailer: 'ASOS',
+                    affiliateLink: 'https://www.asos.com/search/?q=polo+shirt&utm_source=kyapehnu'
+                },
+                {
+                    id: 3,
+                    name: 'Oversized Blouse',
+                    price: '₹1,599',
+                    image: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=300&h=400&fit=crop',
+                    category: 'tops',
+                    retailer: 'Zara',
+                    affiliateLink: 'https://www.zara.com/in/en/search?searchTerm=blouse&utm_source=kyapehnu'
+                }
+            ],
+            outerwear: [
+                {
+                    id: 4,
+                    name: 'Denim Jacket',
+                    price: '₹2,999',
+                    image: 'https://images.unsplash.com/photo-1551537482-f2075a1d41f2?w=300&h=400&fit=crop',
+                    category: 'outerwear',
+                    retailer: 'H&M',
+                    affiliateLink: 'https://www2.hm.com/en_in/search-results.html?q=denim+jacket&utm_source=kyapehnu'
+                },
+                {
+                    id: 5,
+                    name: 'Leather Biker Jacket',
+                    price: '₹4,999',
+                    image: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=300&h=400&fit=crop',
+                    category: 'outerwear',
+                    retailer: 'Amazon',
+                    affiliateLink: 'https://www.amazon.com/s?k=leather+biker+jacket&utm_source=kyapehnu'
+                }
+            ],
+            bottoms: [
+                {
+                    id: 6,
+                    name: 'High-Waist Jeans',
+                    price: '₹1,899',
+                    image: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=300&h=400&fit=crop',
+                    category: 'bottoms',
+                    retailer: 'Myntra',
+                    affiliateLink: 'https://www.myntra.com/jeans-women?sort=popularity&utm_source=kyapehnu'
+                },
+                {
+                    id: 7,
+                    name: 'Tailored Trousers',
+                    price: '₹2,199',
+                    image: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=300&h=400&fit=crop',
+                    category: 'bottoms',
+                    retailer: 'Zara',
+                    affiliateLink: 'https://www.zara.com/in/en/search?searchTerm=trousers&utm_source=kyapehnu'
+                },
+                {
+                    id: 8,
+                    name: 'Cargo Pants',
+                    price: '₹1,699',
+                    image: 'https://images.unsplash.com/photo-1473966968600-fa801b869a1a?w=300&h=400&fit=crop',
+                    category: 'bottoms',
+                    retailer: 'H&M',
+                    affiliateLink: 'https://www2.hm.com/en_in/search-results.html?q=cargo+pants&utm_source=kyapehnu'
+                }
+            ],
+            shoes: [
+                {
+                    id: 9,
+                    name: 'White Sneakers',
+                    price: '₹2,499',
+                    image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=300&h=400&fit=crop',
+                    category: 'shoes',
+                    retailer: 'ASOS',
+                    affiliateLink: 'https://www.asos.com/search/?q=white+sneakers&utm_source=kyapehnu'
+                },
+                {
+                    id: 10,
+                    name: 'Ankle Boots',
+                    price: '₹3,299',
+                    image: 'https://images.unsplash.com/photo-1544966503-7cc5ac882d5e?w=300&h=400&fit=crop',
+                    category: 'shoes',
+                    retailer: 'Myntra',
+                    affiliateLink: 'https://www.myntra.com/boots-women?sort=popularity&utm_source=kyapehnu'
+                }
+            ],
+            dresses: [
+                {
+                    id: 11,
+                    name: 'Midi Dress',
+                    price: '₹2,499',
+                    image: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=300&h=400&fit=crop',
+                    category: 'dresses',
+                    retailer: 'Zara',
+                    affiliateLink: 'https://www.zara.com/in/en/woman/dresses/?utm_source=kyapehnu'
+                },
+                {
+                    id: 12,
+                    name: 'Maxi Dress',
+                    price: '₹1,999',
+                    image: 'https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=300&h=400&fit=crop',
+                    category: 'dresses',
+                    retailer: 'H&M',
+                    affiliateLink: 'https://www2.hm.com/en_in/women/dresses/maxidresses.html?utm_source=kyapehnu'
+                }
+            ]
+        };
+
+        // Get categories from selected garments
+        const selectedCategories = garments.map(g => {
+            const type = g.metadata.type?.toLowerCase() || '';
+            if (type.includes('top') || type.includes('shirt') || type.includes('blouse') || type.includes('sweater')) return 'tops';
+            if (type.includes('jacket') || type.includes('coat') || type.includes('blazer')) return 'outerwear';
+            if (type.includes('pant') || type.includes('jeans') || type.includes('skirt') || type.includes('short')) return 'bottoms';
+            if (type.includes('shoe') || type.includes('boot') || type.includes('sneaker')) return 'shoes';
+            if (type.includes('dress')) return 'dresses';
+            return null;
+        }).filter(Boolean);
+
+        // Get recommendations for each selected category
+        selectedCategories.forEach(category => {
+            if (productDatabase[category]) {
+                // Get 2-3 products per category
+                const categoryProducts = productDatabase[category];
+                const numToShow = Math.min(3, categoryProducts.length);
+                const selectedProducts = categoryProducts.slice(0, numToShow);
+                recommendations.push(...selectedProducts);
+            }
+        });
+
+        // If no specific matches, show some general recommendations
+        if (recommendations.length === 0) {
+            recommendations.push(...productDatabase.tops.slice(0, 2));
+            recommendations.push(...productDatabase.bottoms.slice(0, 2));
+        }
+
+        return recommendations.slice(0, 12); // Limit to 12 products max
+    }
+
+    // ━━━ Open Product Link ━━━
+    function openProductLink(url) {
+        window.open(url, '_blank', 'noopener,noreferrer');
+    }
+
+    // ━━━ AI Virtual Try-On ━━━
+    async function generateVirtualTryon() {
+        const selected = tryonState.selectedGarments;
+
+        // Check if puter.js is loaded
+        if (typeof puter === 'undefined' || !puter.ai) {
+            console.error('Puter.js not loaded or AI not available');
+            showToast('AI service not available. Please check your internet connection.', 'error');
+            return;
+        }
+
+        // Check if we have the required garments (top, bottom, shoes)
+        const hasTop = selected.top || selected.outerwear || selected.dress;
+        const hasBottom = selected.bottom || selected.dress;
+        const hasShoes = selected.shoes;
+
+        if (!hasTop || !hasBottom || !hasShoes) {
+            return; // Don't generate if missing essential pieces
+        }
+
+        // Check cache first
+        const cacheKey = generateCacheKey(selected);
+        const cachedResult = localStorage.getItem(`tryon_cache_${cacheKey}`);
+        if (cachedResult) {
+            displayCachedResult(JSON.parse(cachedResult));
+            return;
+        }
+
+        // Show AI result section
+        const aiResult = document.getElementById('aiTryonResult');
+        const aiStatus = document.getElementById('aiStatus');
+        const aiResultImage = document.getElementById('aiResultImage');
+        const aiResultActions = document.getElementById('aiResultActions');
+
+        aiResult.style.display = 'flex';
+        aiStatus.innerHTML = '<span class="badge badge-info">Generating...</span>';
+        aiResultImage.innerHTML = '<div class="loading-spinner"></div>';
+        aiResultActions.style.display = 'none';
+
+        try {
+            // Get model image
+            const modelImageUrl = await getModelImageUrl();
+
+            // Get garment images
+            const garmentImages = await getGarmentImages(selected);
+
+            if (garmentImages.length < 3) {
+                throw new Error('Need at least top, bottom, and shoes for virtual try-on');
+            }
+
+            // Generate AI try-on using puter.js
+            console.log('Available puter.ai methods:', Object.keys(puter.ai));
+
+            // Check if img2img method exists, otherwise fall back to txt2img with detailed prompt
+            let result;
+            if (puter.ai.img2img) {
+                result = await puter.ai.img2img({
+                    prompt: `Dress the model in the provided clothing while preserving the model's face, body shape, pose, and background. Ensure the garments fit naturally with correct proportions, realistic fabric draping, folds, and textures. Align the top, bottom, and shoes accurately to the body with proper perspective and seamless blending.
+
+Match the original lighting, shadows, and color tones so the outfit looks naturally worn in the scene. Ensure the shoes are correctly positioned on the feet with realistic ground contact.
+
+Photorealistic, high resolution, sharp focus, detailed textures, natural skin tones, no distortion.
+
+Negative prompt: blurry, distorted body, extra limbs, bad anatomy, misaligned clothing, floating garments, unrealistic fabric, poor lighting, warped textures, low resolution, artifacts.`,
+                    image: modelImageUrl,
+                    strength: 0.8,
+                    steps: 20,
+                    guidance_scale: 7.5
+                });
+            } else {
+                // Fallback to txt2img with detailed description
+                const topName = selected.top?.name || selected.outerwear?.name || selected.dress?.name || 'casual top';
+                const bottomName = selected.bottom?.name || selected.dress?.name || 'casual bottom';
+                const shoesName = selected.shoes?.name || 'casual shoes';
+
+                const detailedPrompt = `Photorealistic fashion model wearing: ${topName}, ${bottomName}, ${shoesName}. High resolution, detailed textures, realistic lighting, professional fashion photography style.`;
+
+                const imageElement = await puter.ai.txt2img(detailedPrompt, false);
+                result = { image_url: imageElement.src };
+            }
+
+            // Display result
+            aiResultImage.innerHTML = `<img src="${result.image_url}" alt="AI Virtual Try-On" style="max-width:100%; max-height:100%;">`;
+            aiStatus.innerHTML = '<span class="badge badge-success">Generated!</span>';
+            aiResultActions.style.display = 'flex';
+
+            // Cache the result
+            const cacheData = {
+                imageUrl: result.image_url,
+                timestamp: Date.now(),
+                garments: selected
+            };
+            localStorage.setItem(`tryon_cache_${cacheKey}`, JSON.stringify(cacheData));
+
+        } catch (error) {
+            console.error('Virtual try-on error:', error);
+            aiStatus.innerHTML = '<span class="badge badge-danger">Failed</span>';
+            aiResultImage.innerHTML = `
+                <div style="text-align:center; color:var(--text-muted); padding:20px;">
+                    <div style="font-size:2rem; margin-bottom:10px;">😞</div>
+                    <p>Failed to generate virtual try-on</p>
+                    <p style="font-size:0.8rem;">${error.message}</p>
+                </div>
+            `;
+        }
+    }
+
+    // ━━━ Get Model Image URL ━━━
+    async function getModelImageUrl() {
+        if (tryonState.customModelImage) {
+            // Convert file to data URL
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.readAsDataURL(tryonState.customModelImage);
+            });
+        } else {
+            // Use default male model
+            const modelPath = 'models/male_light.jpg';
+            // Convert to full URL
+            return `${window.location.origin}/${modelPath}`;
+        }
+    }
+
+    // ━━━ Get Garment Images ━━━
+    async function getGarmentImages(selected) {
+        const images = [];
+
+        // Priority: top/outerwear/dress -> bottom -> shoes
+        const garments = [
+            selected.top || selected.outerwear || selected.dress,
+            selected.bottom || selected.dress,
+            selected.shoes
+        ].filter(Boolean);
+
+        for (const garment of garments) {
+            if (garment) {
+                images.push(garment.image_url);
+            }
+        }
+
+        return images;
+    }
+
+    // ━━━ Generate Cache Key ━━━
+    function generateCacheKey(selected) {
+        const garmentIds = Object.values(selected)
+            .filter(g => g)
+            .map(g => g.id)
+            .sort()
+            .join('_');
+        const modelType = tryonState.customModelImage ? 'custom' : 'default';
+        return `${modelType}_${garmentIds}`;
+    }
+
+    // ━━━ Display Cached Result ━━━
+    function displayCachedResult(cachedData) {
+        const aiResult = document.getElementById('aiTryonResult');
+        const aiStatus = document.getElementById('aiStatus');
+        const aiResultImage = document.getElementById('aiResultImage');
+        const aiResultActions = document.getElementById('aiResultActions');
+
+        aiResult.style.display = 'flex';
+        aiStatus.innerHTML = '<span class="badge badge-success">From Cache</span>';
+        aiResultImage.innerHTML = `<img src="${cachedData.imageUrl}" alt="AI Virtual Try-On" style="max-width:100%; max-height:100%;">`;
+        aiResultActions.style.display = 'flex';
+    }
+
+    // ━━━ Regenerate Try-On ━━━
+    function regenerateTryon() {
+        // Clear cache for current combination
+        const selected = tryonState.selectedGarments;
+        const cacheKey = generateCacheKey(selected);
+        localStorage.removeItem(`tryon_cache_${cacheKey}`);
+
+        // Regenerate
+        generateVirtualTryon();
+    }
+
+    // ━━━ Download Try-On ━━━
+    function downloadTryon() {
+        const img = document.querySelector('#aiResultImage img');
+        if (img) {
+            const link = document.createElement('a');
+            link.href = img.src;
+            link.download = 'virtual-tryon.jpg';
+            link.click();
+        }
+    }
+
+    // ━━━ Share Try-On ━━━
+    function shareTryon() {
+        const img = document.querySelector('#aiResultImage img');
+        if (img && navigator.share) {
+            // Use Web Share API if available
+            fetch(img.src)
+                .then(res => res.blob())
+                .then(blob => {
+                    const file = new File([blob], 'virtual-tryon.jpg', { type: 'image/jpeg' });
+                    navigator.share({
+                        title: 'My Virtual Try-On',
+                        text: 'Check out this outfit I tried on virtually!',
+                        files: [file]
+                    });
+                })
+                .catch(() => {
+                    // Fallback: copy image URL to clipboard
+                    navigator.clipboard.writeText(img.src);
+                    showToast('Image URL copied to clipboard!', 'success');
+                });
+        } else {
+            // Fallback: copy image URL to clipboard
+            navigator.clipboard.writeText(img.src);
+            showToast('Image URL copied to clipboard!', 'success');
+        }
+    }
+
+    // ━━━ Analyze Outfit for Shopping ━━━
+    function analyzeOutfitForShopping(selected) {
+        const garments = Object.values(selected);
+        const types = garments.map(g => g.metadata.type?.toLowerCase() || '');
+        const colors = garments.flatMap(g => g.metadata.color || []);
+        const patterns = garments.map(g => g.metadata.pattern?.toLowerCase() || '').filter(p => p);
+
+        // Determine outfit style
+        let style = 'casual';
+        if (types.some(t => t.includes('dress') || t.includes('blazer'))) style = 'formal';
+        if (types.some(t => t.includes('jacket') || t.includes('coat'))) style = 'outerwear';
+
+        // Primary color for searches
+        const primaryColor = colors[0] || 'black';
+
+        // Build retailer-specific searches
+        const amazonQuery = buildAmazonQuery(types, colors, patterns, style);
+        const asosQuery = buildAsosQuery(types, colors, patterns, style);
+        const myntraQuery = buildMyntraQuery(types, colors, patterns, style);
+        const zaraQuery = buildZaraQuery(types, colors, patterns, style);
+        const hmQuery = buildHmQuery(types, colors, patterns, style);
+
+        return {
+            amazonQuery,
+            amazonDesc: `Find ${style} ${types.join(' & ')} in ${primaryColor}`,
+            asosQuery,
+            asosDesc: `Trending ${primaryColor} ${types.join(' & ')} styles`,
+            myntraQuery,
+            myntraDesc: `Shop ${primaryColor} ${types.join(' & ')} collection`,
+            zaraQuery,
+            zaraDesc: `Contemporary ${primaryColor} ${types.join(' & ')}`,
+            hmQuery,
+            hmDesc: `Affordable ${primaryColor} ${types.join(' & ')}`
+        };
+    }
+
+    // ━━━ Retailer-Specific Query Builders ━━━
+    function buildAmazonQuery(types, colors, patterns, style) {
+        const typeMap = {
+            'top': 't-shirts',
+            'shirt': 'shirts',
+            'blouse': 'blouses',
+            'sweater': 'sweaters',
+            'jacket': 'jackets',
+            'coat': 'coats',
+            'blazer': 'blazers',
+            'pant': 'pants',
+            'jeans': 'jeans',
+            'skirt': 'skirts',
+            'dress': 'dresses',
+            'shoe': 'shoes',
+            'boot': 'boots',
+            'sneaker': 'sneakers'
+        };
+
+        const mappedTypes = types.map(t => typeMap[t] || t).filter(t => t);
+        const colorStr = colors.length > 0 ? colors[0] : '';
+        const patternStr = patterns.length > 0 ? patterns[0] : '';
+
+        let query = mappedTypes.join(' ');
+        if (colorStr) query += ` ${colorStr}`;
+        if (patternStr) query += ` ${patternStr}`;
+        if (style !== 'casual') query += ` ${style}`;
+
+        return query || 'fashion clothing';
+    }
+
+    function buildAsosQuery(types, colors, patterns, style) {
+        const typeMap = {
+            'top': 'tops',
+            'shirt': 'shirts',
+            'blouse': 'blouses',
+            'sweater': 'jumpers',
+            'jacket': 'jackets',
+            'coat': 'coats',
+            'blazer': 'blazers',
+            'pant': 'trousers',
+            'jeans': 'jeans',
+            'skirt': 'skirts',
+            'dress': 'dresses',
+            'shoe': 'shoes',
+            'boot': 'boots',
+            'sneaker': 'trainers'
+        };
+
+        const mappedTypes = types.map(t => typeMap[t] || t).filter(t => t);
+        const colorStr = colors.length > 0 ? colors[0] : '';
+
+        let query = mappedTypes.join(' ');
+        if (colorStr) query += ` ${colorStr}`;
+
+        return query || 'clothing';
+    }
+
+    function buildMyntraQuery(types, colors, patterns, style) {
+        const typeMap = {
+            'top': 'tops',
+            'shirt': 'shirts',
+            'blouse': 'blouses',
+            'sweater': 'sweaters',
+            'jacket': 'jackets',
+            'coat': 'coats',
+            'blazer': 'blazers',
+            'pant': 'trousers',
+            'jeans': 'jeans',
+            'skirt': 'skirts',
+            'dress': 'dresses',
+            'shoe': 'shoes',
+            'boot': 'boots',
+            'sneaker': 'sneakers'
+        };
+
+        const mappedTypes = types.map(t => typeMap[t] || t).filter(t => t);
+        const colorStr = colors.length > 0 ? colors[0] : '';
+
+        let query = mappedTypes.join(' ');
+        if (colorStr) query += ` ${colorStr}`;
+
+        return query || 'fashion';
+    }
+
+    function buildZaraQuery(types, colors, patterns, style) {
+        const typeMap = {
+            'top': 'tops',
+            'shirt': 'shirts',
+            'blouse': 'blouses',
+            'sweater': 'sweaters',
+            'jacket': 'jackets',
+            'coat': 'coats',
+            'blazer': 'blazers',
+            'pant': 'trousers',
+            'jeans': 'jeans',
+            'skirt': 'skirts',
+            'dress': 'dresses',
+            'shoe': 'shoes',
+            'boot': 'boots',
+            'sneaker': 'sneakers'
+        };
+
+        const mappedTypes = types.map(t => typeMap[t] || t).filter(t => t);
+        const colorStr = colors.length > 0 ? colors[0] : '';
+
+        let query = mappedTypes.join(' ');
+        if (colorStr) query += ` ${colorStr}`;
+
+        return query || 'clothing';
+    }
+
+    function buildHmQuery(types, colors, patterns, style) {
+        const typeMap = {
+            'top': 'tops',
+            'shirt': 'shirts',
+            'blouse': 'blouses',
+            'sweater': 'cardigans',
+            'jacket': 'jackets',
+            'coat': 'coats',
+            'blazer': 'blazers',
+            'pant': 'pants',
+            'jeans': 'jeans',
+            'skirt': 'skirts',
+            'dress': 'dresses',
+            'shoe': 'shoes',
+            'boot': 'boots',
+            'sneaker': 'sneakers'
+        };
+
+        const mappedTypes = types.map(t => typeMap[t] || t).filter(t => t);
+        const colorStr = colors.length > 0 ? colors[0] : '';
+
+        let query = mappedTypes.join(' ');
+        if (colorStr) query += ` ${colorStr}`;
+
+        return query || 'clothing';
+    }
+
+    // ━━━ Select Model ━━━
+    function selectModel(element) {
+        if (element.dataset.model === 'custom') return;  // Handled by file input
+        
+        document.querySelectorAll('.default-model-option').forEach(o => o.classList.remove('selected'));
+        element.classList.add('selected');
+        tryonState.modelType = element.dataset.model;
+        showToast(`${element.dataset.model.charAt(0).toUpperCase() + element.dataset.model.slice(1)} model selected`, 'info');
+    }
+
+    // ━━━ Save Current Outfit ━━━
+    async function saveCurrentOutfit() {
+        const selected = tryonState.selectedGarments;
+        const garmentIds = Object.values(selected).map(g => g.id);
+
+        if (garmentIds.length === 0) {
+            showToast('Select at least one garment', 'warning');
+            return;
+        }
+
+        const occasion = tryonState.currentOccasion || 'custom';
+
+        try {
+            const formData = new FormData();
+            formData.append('occasion', occasion);
+            formData.append('garment_ids', JSON.stringify(garmentIds));
+
+            await api('/history/save', { method: 'POST', body: formData });
+            showToast('Outfit saved to history! ✨', 'success');
+        } catch (err) {
+            showToast(err.message, 'error');
+        }
+    }
+
+    // ━━━ Model Image System ━━━
+    async function loadCurrentModel() {
+        try {
+            const data = await api('/model/current');
+
+            document.getElementById('currentModelThumb').src = data.image_url;
+
+            if (data.source === 'user') {
+                document.getElementById('currentModelLabel').textContent = 'Your Photo';
+                document.getElementById('currentModelSource').textContent = '✅ Verified full body image';
+                document.getElementById('currentModelSource').style.color = 'var(--success)';
+                document.getElementById('removePhotoBtn').style.display = 'block';
+
+                // Deselect default options
+                document.querySelectorAll('.default-model-option').forEach(o => o.classList.remove('selected'));
+            } else {
+                document.getElementById('currentModelLabel').textContent = 'Default Model';
+                document.getElementById('currentModelSource').textContent = data.message;
+                document.getElementById('removePhotoBtn').style.display = 'none';
+            }
+
+            tryonState.currentModelUrl = data.image_url;
+        } catch (err) {
+            console.log('Could not load model:', err);
+        }
+    }
+
+    // Upload body image with verification
+    document.getElementById('bodyImageUpload').addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const statusDiv = document.getElementById('uploadStatus');
+        statusDiv.style.display = 'block';
+        statusDiv.style.background = 'rgba(124, 92, 252, 0.1)';
+        statusDiv.style.border = '1px solid rgba(124, 92, 252, 0.3)';
+        statusDiv.innerHTML = `
+            <div style="display:flex; align-items:center; gap:8px">
+                <div class="spinner" style="width:20px; height:20px; border-width:2px"></div>
+                <span>Verifying your photo with AI...</span>
+            </div>
+        `;
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const result = await api('/model/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (result.status === 'accepted') {
+                // ✅ Accepted
+                statusDiv.style.background = 'rgba(0, 214, 143, 0.1)';
+                statusDiv.style.border = '1px solid rgba(0, 214, 143, 0.3)';
+                statusDiv.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:8px">
+                        <span>✅</span>
+                        <div>
+                            <strong style="color:var(--success)">Photo verified!</strong>
+                            <p class="text-muted" style="margin-top:2px">${result.message}</p>
+                        </div>
+                    </div>
+                `;
+                showToast('Your photo is verified! Try-on will use your image 📸', 'success');
+
+                // Reload model display
+                loadCurrentModel();
+
+            } else {
+                // ❌ Rejected
+                statusDiv.style.background = 'rgba(255, 71, 87, 0.1)';
+                statusDiv.style.border = '1px solid rgba(255, 71, 87, 0.3)';
+                statusDiv.innerHTML = `
+                    <div>
+                        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px">
+                            <span>⚠️</span>
+                            <strong style="color:var(--warning)">Photo not suitable for try-on</strong>
+                        </div>
+                        <p class="text-muted" style="font-size:0.8rem">
+                            <strong>Issue:</strong> ${result.issue}<br>
+                            <strong>Tip:</strong> ${result.suggestion}
+                        </p>
+                        <p class="text-muted" style="font-size:0.75rem; margin-top:8px">
+                            Using default model instead — try uploading a different photo
+                        </p>
+                    </div>
+                `;
+                showToast(result.suggestion || 'Please upload a full body photo', 'warning');
+            }
+
+        } catch (err) {
+            statusDiv.style.background = 'rgba(255, 71, 87, 0.1)';
+            statusDiv.innerHTML = `<span>❌ Upload failed: ${err.message}</span>`;
+            showToast(err.message, 'error');
+        }
+
+        // Clear file input for re-upload
+        e.target.value = '';
+    });
+
+
+    function useDefaultModel(gender) {
+        document.querySelectorAll('.default-model-option').forEach(o => o.classList.remove('selected'));
+        document.querySelector(`.default-model-option[data-gender="${gender}"]`).classList.add('selected');
+        tryonState.modelType = gender;
+
+        // Update display
+        const icons = { female: '👩', male: '👨', other: '🧑' };
+        document.getElementById('currentModelThumb').src =
+            `/models/${gender}_medium.jpg`;
+        document.getElementById('currentModelLabel').textContent =
+            `Default ${gender.charAt(0).toUpperCase() + gender.slice(1)} Model`;
+        document.getElementById('currentModelSource').textContent = 'Default model';
+        document.getElementById('currentModelSource').style.color = 'var(--text-secondary)';
+
+        showToast(`${gender.charAt(0).toUpperCase() + gender.slice(1)} model selected`, 'info');
+    }
+
+
+    async function removeCustomPhoto() {
+        if (!confirm('Remove your photo? Default model will be used instead.')) return;
+
+        try {
+            await api('/model/remove', { method: 'DELETE' });
+            showToast('Photo removed — using default model', 'success');
+            document.getElementById('removePhotoBtn').style.display = 'none';
+            document.getElementById('uploadStatus').style.display = 'none';
+            loadCurrentModel();
+        } catch (err) {
+            showToast(err.message, 'error');
+        }
+    }
+
+    // ━━━ Share Outfit ━━━
+    function shareOutfit() {
+        showToast('Share feature coming soon!', 'info');
+    }
+
+    // Init
+    initTryon();
+</script>
+
+<button class="btn btn-sm btn-secondary" style=" position: fixed;
+    bottom: 0;
+    right: 0;
+    text-align: center;
+    z-index: 1000;" onclick="toggleTheme()">
+    🌓
+</button></body>
+</html>

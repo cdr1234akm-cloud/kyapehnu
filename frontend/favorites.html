@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kya Pehnu?</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 72'><path d='M32 4 C32 4 32 8 32 9' stroke='%23D4A017' stroke-width='1.5' stroke-linecap='round'/><path d='M26 9 Q32 6 38 9' stroke='%23D4A017' stroke-width='1.5' stroke-linecap='round' fill='none'/><path d='M25 10 C23 12 21 16 20 20 L24 22 L32 20 L40 22 L44 20 C43 16 41 12 39 10 Q35 8 32 9 Q29 8 25 10Z' fill='%23D4A017' opacity='0.9'/><path d='M24 22 C24 24 26 26 28 27 L32 28 L36 27 C38 26 40 24 40 22' fill='%23D4A017' opacity='0.85'/><path d='M28 27 C24 32 14 50 12 66 L52 66 C50 50 40 32 36 27 C36 27 34 28 32 28 C30 28 28 27 28 27Z' fill='%23D4A017' opacity='0.75'/></svg>">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .favorites-page { padding-top: 80px; min-height: 100vh; }
+
+        .fav-tabs {
+            display: flex; gap: 4px; background: var(--bg-input);
+            border-radius: var(--radius-full); padding: 4px;
+            max-width: 300px; margin-bottom: 24px;
+        }
+        .fav-tab {
+            flex: 1; padding: 10px; border: none; border-radius: var(--radius-full);
+            background: transparent; color: var(--text-secondary);
+            font-family: var(--font-body); font-weight: 600; font-size: 0.85rem;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .fav-tab.active { background: var(--accent-primary); color: white; }
+
+        .fav-garment-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 16px; padding-bottom: 40px;
+        }
+        .fav-garment-card {
+            position: relative; border-radius: var(--radius-lg); overflow: hidden;
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            transition: all 0.3s var(--ease-out);
+            animation: fadeUp 0.5s var(--ease-out) backwards;
+        }
+        .fav-garment-card:hover {
+            transform: translateY(-4px); box-shadow: var(--shadow-md);
+            border-color: var(--accent-primary);
+        }
+        .fav-garment-card img { width: 100%; aspect-ratio: 3/4; object-fit: cover; }
+        .fav-garment-info { padding: 10px; }
+        .fav-garment-info h4 {
+            font-family: var(--font-body); font-size: 0.85rem; font-weight: 600;
+            text-transform: capitalize;
+        }
+        .fav-heart {
+            position: absolute; top: 8px; right: 8px;
+            width: 32px; height: 32px; border-radius: 50%;
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(8px);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 1rem;
+            transition: all 0.2s var(--ease-spring);
+        }
+        .fav-heart:hover { transform: scale(1.2); background: rgba(255,71,87,0.8); }
+
+        .fav-outfit-list { display: flex; flex-direction: column; gap: 16px; padding-bottom: 60px; }
+
+        .fav-outfit-card {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl); padding: 20px;
+            transition: all 0.3s; animation: fadeUp 0.5s var(--ease-out) backwards;
+        }
+        .fav-outfit-card:hover { border-color: var(--border-active); }
+
+        .fav-outfit-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        .fav-outfit-header h3 {
+            font-family: var(--font-body); font-size: 1rem; font-weight: 600;
+        }
+
+        .fav-outfit-pieces {
+            display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px;
+        }
+        .fav-outfit-piece {
+            width: 70px; height: 90px; border-radius: var(--radius-sm);
+            overflow: hidden; border: 1px solid var(--border-color); flex-shrink: 0;
+        }
+        .fav-outfit-piece img { width: 100%; height: 100%; object-fit: cover; }
+
+        .fav-outfit-actions {
+            display: flex; gap: 8px; margin-top: 12px;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <a href="index.html" class="navbar-brand">
+        <svg width="24" height="28" viewBox="0 0 64 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M32 4 C32 4 32 8 32 9" stroke="var(--accent-primary)" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M26 9 Q32 6 38 9" stroke="var(--accent-primary)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+            <path d="M25 10 C23 12 21 16 20 20 L24 22 L32 20 L40 22 L44 20 C43 16 41 12 39 10 Q35 8 32 9 Q29 8 25 10Z" fill="var(--accent-primary)" opacity="0.9"/>
+            <path d="M24 22 C24 24 26 26 28 27 L32 28 L36 27 C38 26 40 24 40 22" fill="var(--accent-primary)" opacity="0.85"/>
+            <path d="M28 27 C24 32 14 50 12 66 L52 66 C50 50 40 32 36 27 C36 27 34 28 32 28 C30 28 28 27 28 27Z" fill="var(--accent-primary)" opacity="0.75"/>
+        </svg>
+        <span style="font-family: var(--font-display); font-weight: 500;">Kya Pehnu?</span>
+    </a>
+    <div class="navbar-links">
+        <a href="wardrobe.html" class="nav-link">Wardrobe</a>
+        <a href="occasion.html" class="nav-link">Occasions</a>
+        <a href="tryon.html" class="nav-link">Try-On</a>
+        <a href="favorites.html" class="nav-link active">Favorites</a>
+        <a href="profile.html" class="nav-link">Profile</a>
+        <div class="nav-avatar" id="navAvatar" onclick="window.location='profile.html'">U</div>
+    </div>
+</nav>
+
+<div class="favorites-page">
+    <div class="container">
+        <div class="page-header">
+            <div>
+                <h1 style="font-size:1.8rem">
+                    <span class="text-gradient">Favorites</span>
+                </h1>
+                <p class="text-muted">Your most loved pieces and outfits</p>
+            </div>
+        </div>
+
+        <div class="fav-tabs">
+            <button class="fav-tab active" onclick="switchFavTab('garments', this)">👕 Garments</button>
+            <button class="fav-tab" onclick="switchFavTab('outfits', this)">👗 Outfits</button>
+        </div>
+
+        <div id="favGarmentsTab">
+            <div class="fav-garment-grid" id="favGarmentGrid">
+                <p class="text-muted" style="grid-column:1/-1; text-align:center; padding:40px">Loading...</p>
+            </div>
+        </div>
+
+        <div id="favOutfitsTab" style="display:none">
+            <div class="fav-outfit-list" id="favOutfitList">
+                <p class="text-muted" style="text-align:center; padding:40px">Loading...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="js/app.js"></script>
+<script>
+    function switchFavTab(tab, btn) {
+        document.querySelectorAll('.fav-tab').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('favGarmentsTab').style.display = tab === 'garments' ? 'block' : 'none';
+        document.getElementById('favOutfitsTab').style.display = tab === 'outfits' ? 'block' : 'none';
+    }
+
+    async function initFavorites() {
+        if (!requireAuth()) return;
+        updateNavbar();
+        loadFavGarments();
+        loadFavOutfits();
+    }
+
+    async function loadFavGarments() {
+        try {
+            const data = await api('/favorites/garments');
+            const grid = document.getElementById('favGarmentGrid');
+
+            if (data.favorites.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state" style="grid-column:1/-1">
+                        <div class="empty-icon">⭐</div>
+                        <h3>No favorite garments yet</h3>
+                        <p class="text-muted">Heart your favorite items in your wardrobe</p>
+                        <a href="wardrobe.html" class="btn btn-primary" style="margin-top:16px">Go to Wardrobe</a>
+                    </div>`;
+                return;
+            }
+
+            grid.innerHTML = data.favorites.map((g, i) => {
+                const meta = g.metadata;
+                return `
+                    <div class="fav-garment-card" style="animation-delay:${i*0.05}s">
+                        <img src="${g.image_url}" alt="${meta.subtype || meta.type}" loading="lazy">
+                        <div class="fav-heart" onclick="unfavoriteGarment('${g.id}', this)">❤️</div>
+                        <div class="fav-garment-info">
+                            <h4>${meta.subtype || meta.type}</h4>
+                            <p class="text-muted" style="font-size:0.75rem">
+                                ${(meta.color || []).join(', ')} • ${meta.pattern || ''}
+                            </p>
+                        </div>
+                    </div>`;
+            }).join('');
+        } catch (err) {
+            showToast(err.message, 'error');
+        }
+    }
+
+    async function loadFavOutfits() {
+        try {
+            const data = await api('/favorites/outfits');
+            const list = document.getElementById('favOutfitList');
+
+            if (data.favorites.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">👗</div>
+                        <h3>No saved outfits yet</h3>
+                        <p class="text-muted">Save outfits from the suggestions page</p>
+                        <a href="occasion.html" class="btn btn-primary" style="margin-top:16px">Get Outfit Ideas</a>
+                    </div>`;
+                return;
+            }
+
+            list.innerHTML = data.favorites.map((outfit, i) => {
+                const pieces = outfit.pieces || [];
+                const piecesHTML = pieces.map(p => `
+                    <div class="fav-outfit-piece">
+                        <img src="${p.image_url}" alt="${p.metadata?.subtype || 'item'}">
+                    </div>
+                `).join('');
+
+                return `
+                    <div class="fav-outfit-card" style="animation-delay:${i*0.05}s">
+                        <div class="fav-outfit-header">
+                            <h3>${outfit.name}</h3>
+                            ${outfit.occasion ? `<span class="badge badge-primary">${outfit.occasion}</span>` : ''}
+                        </div>
+                        <div class="fav-outfit-pieces">${piecesHTML}</div>
+                        ${outfit.notes ? `<p class="text-muted" style="font-size:0.8rem; margin-top:8px">${outfit.notes}</p>` : ''}
+                        <div class="fav-outfit-actions">
+                            <button class="btn btn-sm btn-primary" onclick="tryOnFavOutfit('${encodeURIComponent(JSON.stringify(JSON.parse(outfit.garment_ids)))}')">
+                                👁️ Try On
+                            </button>
+                            <button class="btn btn-sm btn-secondary" onclick="wearFavOutfit('${outfit.id}', '${outfit.garment_ids}', '${outfit.occasion || 'casual'}')">
+                                ✅ Wore It
+                            </button>
+                            <button class="btn btn-sm btn-secondary" onclick="deleteFavOutfit('${outfit.id}')">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>`;
+            }).join('');
+        } catch (err) {
+            showToast(err.message, 'error');
+        }
+    }
+
+    async function unfavoriteGarment(id, el) {
+        try {
+            await api(`/favorites/garment/${id}`, { method: 'POST' });
+            el.closest('.fav-garment-card').style.animation = 'fadeOut 0.3s forwards';
+            setTimeout(() => loadFavGarments(), 300);
+            showToast('Removed from favorites', 'info');
+        } catch (err) {
+            showToast(err.message, 'error');
+        }
+    }
+
+    function tryOnFavOutfit(garmentIdsEncoded) {
+        const ids = JSON.parse(decodeURIComponent(garmentIdsEncoded));
+        localStorage.setItem('styleai_tryon_garments', JSON.stringify(ids));
+        window.location.href = 'tryon.html';
+    }
+
+    async function wearFavOutfit(outfitId, garmentIds, occasion) {
+        try {
+            const formData = new FormData();
+            formData.append('garment_ids', garmentIds);
+            formData.append('occasion', occasion);
+            await api('/history/log', { method: 'POST', body: formData });
+            showToast('Logged as worn today! 📝', 'success');
+        } catch (err) {
+            showToast(err.message, 'error');
+        }
+    }
+
+    async function deleteFavOutfit(id) {
+        if (!confirm('Remove this outfit from favorites?')) return;
+        try {
+            await api(`/favorites/outfit/${id}`, { method: 'DELETE' });
+            showToast('Removed from favorites', 'info');
+            loadFavOutfits();
+        } catch (err) {
+            showToast(err.message, 'error');
+        }
+    }
+
+    initFavorites();
+</script>
+<button class="btn btn-sm btn-secondary" style=" position: fixed;
+    bottom: 0;
+    right: 0;
+    text-align: center;
+    z-index: 1000;" onclick="toggleTheme()">
+    🌓
+</button></body>
+</html>

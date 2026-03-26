@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kya Pehnu?</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 72'><path d='M32 4 C32 4 32 8 32 9' stroke='%23D4A017' stroke-width='1.5' stroke-linecap='round'/><path d='M26 9 Q32 6 38 9' stroke='%23D4A017' stroke-width='1.5' stroke-linecap='round' fill='none'/><path d='M25 10 C23 12 21 16 20 20 L24 22 L32 20 L40 22 L44 20 C43 16 41 12 39 10 Q35 8 32 9 Q29 8 25 10Z' fill='%23D4A017' opacity='0.9'/><path d='M24 22 C24 24 26 26 28 27 L32 28 L36 27 C38 26 40 24 40 22' fill='%23D4A017' opacity='0.85'/><path d='M28 27 C24 32 14 50 12 66 L52 66 C50 50 40 32 36 27 C36 27 34 28 32 28 C30 28 28 27 28 27Z' fill='%23D4A017' opacity='0.75'/></svg>">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="onboarding-page">
+    <div class="onboarding-card">
+
+        <!-- Progress -->
+        <div class="progress-bar">
+            <div class="progress-dot active"></div>
+            <div class="progress-dot"></div>
+            <div class="progress-dot"></div>
+            <div class="progress-dot"></div>
+        </div>
+
+        <!-- Step 1: Gender -->
+        <div class="ob-step step-content">
+            <div class="text-center">
+                <h2 style="margin-bottom:8px">Tell us about you</h2>
+                <p class="text-muted">This helps us recommend the right styles</p>
+            </div>
+            <div class="option-grid" style="grid-template-columns: repeat(3, 1fr)">
+                <div class="option-card" data-field="gender" data-value="female">
+                    <div class="option-icon">👩</div>
+                    Female
+                </div>
+                <div class="option-card" data-field="gender" data-value="male">
+                    <div class="option-icon">👨</div>
+                    Male
+                </div>
+                <div class="option-card" data-field="gender" data-value="other">
+                    <div class="option-icon">🌈</div>
+                    Other
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Body Type -->
+        <div class="ob-step step-content" style="display:none">
+            <div class="text-center">
+                <h2 style="margin-bottom:8px">Body Type</h2>
+                <p class="text-muted">Helps with fit recommendations</p>
+            </div>
+            <div class="option-grid" id="bodyTypeOptions">
+                <div class="option-card" data-field="body_type" data-value="slim">
+                    <div class="option-icon">🏃</div>
+                    Slim
+                </div>
+                <div class="option-card" data-field="body_type" data-value="regular">
+                    <div class="option-icon">🧍</div>
+                    Regular
+                </div>
+                <div class="option-card" data-field="body_type" data-value="athletic">
+                    <div class="option-icon">💪</div>
+                    Athletic
+                </div>
+                <div class="option-card" data-field="body_type" data-value="plus">
+                    <div class="option-icon">🌟</div>
+                    Plus
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: Skin Tone -->
+        <div class="ob-step step-content" style="display:none">
+            <div class="text-center">
+                <h2 style="margin-bottom:8px">Skin Tone</h2>
+                <p class="text-muted">For better color recommendations</p>
+            </div>
+            <div class="skin-swatches">
+                <div class="skin-swatch" data-value="light" style="background:#FDDBB4"></div>
+                <div class="skin-swatch" data-value="fair" style="background:#E8B88A"></div>
+                <div class="skin-swatch" data-value="medium" style="background:#C68642"></div>
+                <div class="skin-swatch" data-value="olive" style="background:#A0785A"></div>
+                <div class="skin-swatch" data-value="brown" style="background:#8D5524"></div>
+                <div class="skin-swatch" data-value="dark" style="background:#5C3310"></div>
+            </div>
+        </div>
+
+        <!-- Step 4: Style Preferences -->
+        <div class="ob-step step-content" style="display:none">
+            <div class="text-center">
+                <h2 style="margin-bottom:8px">Your Style</h2>
+                <p class="text-muted">Pick all that describe you (optional)</p>
+            </div>
+            <div class="style-chips">
+                <div class="style-chip" data-value="minimal">🤍 Minimal</div>
+                <div class="style-chip" data-value="streetwear">🔥 Streetwear</div>
+                <div class="style-chip" data-value="classic">🎩 Classic</div>
+                <div class="style-chip" data-value="bohemian">🌻 Bohemian</div>
+                <div class="style-chip" data-value="sporty">⚡ Sporty</div>
+                <div class="style-chip" data-value="elegant">✨ Elegant</div>
+                <div class="style-chip" data-value="edgy">🖤 Edgy</div>
+                <div class="style-chip" data-value="preppy">📚 Preppy</div>
+                <div class="style-chip" data-value="vintage">🎞️ Vintage</div>
+                <div class="style-chip" data-value="artsy">🎨 Artsy</div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div style="display:flex; justify-content:space-between; margin-top:24px">
+            <button id="obPrev" class="btn btn-secondary btn-sm" style="visibility:hidden">← Back</button>
+            <button id="obNext" class="btn btn-primary btn-sm">Next →</button>
+        </div>
+    </div>
+</div>
+
+<script src="js/app.js"></script>
+<script>initOnboarding();</script>
+<button class="btn btn-sm btn-secondary" style=" position: fixed;
+    bottom: 0;
+    right: 0;
+    text-align: center;
+    z-index: 1000;" onclick="toggleTheme()">
+    🌓
+</button></body>
+</html>

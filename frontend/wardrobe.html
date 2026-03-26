@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kya Pehnu?</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 72'><path d='M32 4 C32 4 32 8 32 9' stroke='%23D4A017' stroke-width='1.5' stroke-linecap='round'/><path d='M26 9 Q32 6 38 9' stroke='%23D4A017' stroke-width='1.5' stroke-linecap='round' fill='none'/><path d='M25 10 C23 12 21 16 20 20 L24 22 L32 20 L40 22 L44 20 C43 16 41 12 39 10 Q35 8 32 9 Q29 8 25 10Z' fill='%23D4A017' opacity='0.9'/><path d='M24 22 C24 24 26 26 28 27 L32 28 L36 27 C38 26 40 24 40 22' fill='%23D4A017' opacity='0.85'/><path d='M28 27 C24 32 14 50 12 66 L52 66 C50 50 40 32 36 27 C36 27 34 28 32 28 C30 28 28 27 28 27Z' fill='%23D4A017' opacity='0.75'/></svg>">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+    <a href="index.html" class="navbar-brand">
+        <svg width="24" height="28" viewBox="0 0 64 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M32 4 C32 4 32 8 32 9" stroke="var(--accent-primary)" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M26 9 Q32 6 38 9" stroke="var(--accent-primary)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+            <path d="M25 10 C23 12 21 16 20 20 L24 22 L32 20 L40 22 L44 20 C43 16 41 12 39 10 Q35 8 32 9 Q29 8 25 10Z" fill="var(--accent-primary)" opacity="0.9"/>
+            <path d="M24 22 C24 24 26 26 28 27 L32 28 L36 27 C38 26 40 24 40 22" fill="var(--accent-primary)" opacity="0.85"/>
+            <path d="M28 27 C24 32 14 50 12 66 L52 66 C50 50 40 32 36 27 C36 27 34 28 32 28 C30 28 28 27 28 27Z" fill="var(--accent-primary)" opacity="0.75"/>
+        </svg>
+        <span style="font-family: var(--font-display); font-weight: 500;">Kya Pehnu?</span>
+    </a>
+    <div class="navbar-links">
+        <a href="wardrobe.html" class="nav-link">Wardrobe</a>
+        <a href="occasion.html" class="nav-link">Occasions</a>
+        <a href="tryon.html" class="nav-link">Try-On</a>
+        <a href="favorites.html" class="nav-link">⭐</a>
+        <a href="history.html" class="nav-link">📅</a>
+        <a href="stats.html" class="nav-link">📊</a>
+        <a href="profile.html" class="nav-link">👤</a>
+        <div class="nav-avatar" id="navAvatar" onclick="window.location='profile.html'">U</div>
+    </div>
+</nav>
+
+<div class="wardrobe-page">
+    <div class="container">
+        <!-- Header -->
+        <div class="page-header">
+            <div>
+                <h1 style="font-size:1.8rem">My Wardrobe</h1>
+                <p class="text-muted" id="wardrobeCount">Loading...</p>
+            </div>
+            <a href="occasion.html" class="btn btn-primary">🎯 Get Outfit Ideas</a>
+        </div>
+
+        <!-- Upload Zone -->
+        <div class="upload-zone" id="uploadZone">
+            <div class="upload-icon">📸</div>
+            <p><strong>Drag & drop</strong> clothing photos here</p>
+            <p style="font-size:0.85rem">or click to browse • JPG, PNG, WebP</p>
+            <input type="file" id="fileInput" accept="image/*" multiple hidden>
+        </div>
+
+        <!-- Upload Progress -->
+        <div class="upload-progress" id="uploadProgress">
+            <div class="progress-track">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <p class="text-muted" style="font-size:0.85rem; margin-top:8px" id="uploadStatus"></p>
+        </div>
+
+        <!-- Garment Grid -->
+        <div class="garment-grid" id="garmentGrid">
+            <!-- Filled by JS -->
+        </div>
+    </div>
+</div>
+
+<script src="js/app.js"></script>
+<script>initWardrobe();</script>
+<button class="btn btn-sm btn-secondary" style=" position: fixed;
+    bottom: 0;
+    right: 0;
+    text-align: center;
+    z-index: 1000;" onclick="toggleTheme()">
+    🌓
+</button></body>
+</html>
